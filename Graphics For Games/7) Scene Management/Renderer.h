@@ -1,34 +1,19 @@
 # pragma once
-
-# include "../nclgl/OGLRenderer.h"
-# include "../nclgl/Camera.h"
-# include "../nclgl/SceneNode.h"
-# include "../nclgl/Frustrum.h"
-# include "../nclgl/CubeRobot.h"
-# include <algorithm> // For std :: sort ...
-
-class Renderer : public OGLRenderer {
-public:
-	Renderer(Window & parent);
-	virtual ~Renderer(void);
-
-
-	virtual void UpdateScene(float msec);
-	virtual void RenderScene();
-
-protected:
-	void BuildNodeLists(SceneNode * from);
-	void SortNodeLists();
-	void ClearNodeLists();
-	void DrawNodes();
-	void DrawNode(SceneNode * n);
-
-	SceneNode * root;
-	Camera * camera;
-	Mesh * quad;
-
-	Frustrum frameFrustrum;
-
-	vector < SceneNode * > transparentNodeList;
-	vector < SceneNode * > nodeList;
-};
+2
+3 # include "./ nclgl / OGLRenderer .h"
+4 # include "./ nclgl / camera .h"
+5 # include "./ nclgl / HeightMap .h"
+6
+7 class Renderer : public OGLRenderer {
+	8 public:
+		9 Renderer(Window & parent);
+		10 virtual ~Renderer(void);
+		11
+			12 virtual void RenderScene();
+		13 virtual void UpdateScene(float msec);
+		14
+			15 protected:
+				16 HeightMap * heightMap;
+				17 Camera * camera;
+				18
+};
