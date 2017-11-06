@@ -92,7 +92,7 @@ MD5FileData::MD5FileData(const std::string &filename)	{
 	//If we get to here, we've loaded in everything from the file, so we can close it
 	f.close();
 
-	//If what we've loaded in does not equal what we /should/ have loaded in, we'll output an error
+	//If what we've loaded in does not equal what we /should/have loaded in, we'll output an error
 	//
 	if(numLoadedJoints != numExpectedJoints) {
 		std::cout << "Expected " << numExpectedJoints << " joints, but loaded " << numLoadedJoints << std::endl;
@@ -279,7 +279,7 @@ void	MD5FileData::LoadShaderProxy(std::string filename, MD5SubMesh &m) {
 	//to the Mesh texture values.
 	m.texIndex = SOIL_load_OGL_texture(
 		diffuseMap.c_str(),
-		SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_MIPMAPS// | SOIL_FLAG_COMPRESS_TO_DXT
+		SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_MIPMAPS//| SOIL_FLAG_COMPRESS_TO_DXT
 	);
 
 #ifdef MD5_USE_TANGENTS_BUMPMAPS
@@ -519,7 +519,7 @@ void MD5FileData::CreateMeshes()	{
 		/*
 		Here we go through each tri, and put its indices in the Mesh index buffer. You'll see
 		we have a weird ordering here, doing cba, rather than abc. MD5 triangles have a 
-		/clockwise/ winding, whereas OGL expects anticlockwise to be 'forward facing' for
+		/clockwise/winding, whereas OGL expects anticlockwise to be 'forward facing' for
 		a triangle. So, we simply reverse the order of indices to make the tri anticlockwise
 		*/
 		for(int j = 0; j < subMesh.numtris; ++j) {
@@ -581,11 +581,11 @@ void	MD5FileData::UpdateTransformTBO(const MD5Skeleton &skel) const {
 		//and for pure GPU skinning, we could just have given the pointer to
 		//the skeletons transform array to glBufferSubData. So much for OO...
 
-		//The reason we store /two/ transforms is due to needing to transform
+		//The reason we store /two/transforms is due to needing to transform
 		//the mesh's normals into the correct orientation for the current frame
 		//of animation. We do this by first generating the normals and tangents
 		//for the 'bind pose' of the mesh - the 'default' position of the mesh.
-		//we then calculate the /inverse/ of the rotation for each of the bind
+		//we then calculate the /inverse/of the rotation for each of the bind
 		//pose's joints - remember that that the inverse of a matrix moves us
 		//'back a space', so this inverse matrix takes us from global joint
 		//space in the bind pose, to the local joint space. Also remember we can

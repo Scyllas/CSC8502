@@ -3,7 +3,7 @@
 # include "Plane.h"
 # include "Matrix4.h"
 # include "SceneNode.h"
-class Matrix4; // Compile the Mat4 class first , please !
+class Matrix4; //Compile the Mat4 class first , please !
 
 class Frustrum {
 public:

@@ -30,7 +30,7 @@ void	MD5Node::Update(float msec) {
 		frameTime -= msec;
 		//Time to calculate which frame we're now on!
 		while(frameTime < 0) {
-			frameTime += 1000.0f / currentAnim->GetFrameRate();
+			frameTime += 1000.0f /currentAnim->GetFrameRate();
 			//all animations are assumed to be 'looping', so we use the modulo
 			//operator to 'wrap around' if we go past the end of the anim
 			currentAnimFrame = currentAnimFrame++%(currentAnim->GetNumFrames());
@@ -266,8 +266,8 @@ void	MD5Node::DebugDrawSkeleton() {
 		//as it is deprecated functionality in OGL 3.2. 
 		glPointSize(5.0f);
 		glLineWidth(2.0f);
-		glDrawArrays(GL_POINTS, 0, currentSkeleton.numJoints * 2);	// draw Joints
-		glDrawArrays(GL_LINES, 0, currentSkeleton.numJoints * 2);	// draw Bones
+		glDrawArrays(GL_POINTS, 0, currentSkeleton.numJoints * 2);	//draw Joints
+		glDrawArrays(GL_LINES, 0, currentSkeleton.numJoints * 2);	//draw Bones
 		glPointSize(1.0f);
 		glLineWidth(1.0f);
 	
@@ -342,7 +342,7 @@ void	MD5Node::DebugDrawJointTransforms(float size, bool worldSpace) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glLineWidth(2.0f);
-	glDrawArrays(GL_LINES, 0, currentSkeleton.numJoints * 6);	// draw Bones
+	glDrawArrays(GL_LINES, 0, currentSkeleton.numJoints * 6);	//draw Bones
 	glLineWidth(1.0f);
 
 	glBindVertexArray(0);

@@ -15,7 +15,7 @@ functionality is a complete 'black box' as far as the rest of the classes are
 concerned.
 
 MD5Mesh supports multiple animations being attached to a MD5Mesh, but only
-one animation can be ran at a time (it shouldn't be /that/ hard to extend it!)
+one animation can be ran at a time (it shouldn't be /that/hard to extend it!)
 
 If you're going to have lots of instances of a MD5Mesh, you'd be better off
 creating an MD5MeshInstance SceneNode subclass, which has a pointer to a

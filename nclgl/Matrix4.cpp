@@ -49,10 +49,10 @@ void	Matrix4::SetScalingVector(const Vector3 &in) {
 Matrix4 Matrix4::Perspective(float znear, float zfar, float aspect, float fov) {
 	Matrix4 m;
 
-	const float h = 1.0f / tan(fov*PI_OVER_360);
+	const float h = 1.0f /tan(fov*PI_OVER_360);
 	float neg_depth = znear-zfar;
 
-	m.values[0]		= h / aspect;
+	m.values[0]		= h /aspect;
 	m.values[5]		= h;
 	m.values[10]	= (zfar + znear)/neg_depth;
 	m.values[11]	= -1.0f;
@@ -66,9 +66,9 @@ Matrix4 Matrix4::Perspective(float znear, float zfar, float aspect, float fov) {
 Matrix4 Matrix4::Orthographic(float znear, float zfar,float right, float left, float top, float bottom)	{
 	Matrix4 m;
 
-	m.values[0]	= 2.0f / (right-left);
-	m.values[5]	= 2.0f / (top-bottom);
-	m.values[10]	= -2.0f / (zfar-znear);
+	m.values[0]	= 2.0f /(right-left);
+	m.values[5]	= 2.0f /(top-bottom);
+	m.values[10]	= -2.0f /(zfar-znear);
 
 	m.values[12]  = -(right+left)/(right-left);
 	m.values[13]  = -(top+bottom)/(top-bottom);
@@ -78,7 +78,7 @@ Matrix4 Matrix4::Orthographic(float znear, float zfar,float right, float left, f
 	return m;
 }
 
-Matrix4 Matrix4::BuildViewMatrix(const Vector3 &from, const Vector3 &lookingAt, const Vector3 up /*= Vector3(1,0,0)*/ )	{
+Matrix4 Matrix4::BuildViewMatrix(const Vector3 &from, const Vector3 &lookingAt, const Vector3 up /*= Vector3(1,0,0)*/)	{
 	Matrix4 r;
 	r.SetPositionVector(Vector3(-from.x,-from.y,-from.z));
 

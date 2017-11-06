@@ -3,12 +3,12 @@ bool Frustrum::InsideFrustum(SceneNode & n) {
 	for (int p = 0; p < 6; ++p) {
 		if (!planes[p].SphereInPlane(n.GetWorldTransform().
 			GetPositionVector(), n.GetBoundingRadius())) {
-			return false; // scenenode is outside this plane !
+			return false; //scenenode is outside this plane !
 
 		}
 
 	}
-	return true; // Scenenode is inside every plane ...
+	return true; //Scenenode is inside every plane ...
 
 }
 
@@ -18,22 +18,22 @@ void Frustrum::FromMatrix(const Matrix4 & mat) {
 	Vector3 zaxis = Vector3(mat.values[2], mat.values[6], mat.values[10]);
 	Vector3 waxis = Vector3(mat.values[3], mat.values[7], mat.values[11]);
 
-	// RIGHT
+	//RIGHT
 	planes[0] = Plane(waxis - xaxis,
 		(mat.values[15] - mat.values[12]), true);
-	// LEFT
+	//LEFT
 	planes[1] = Plane(waxis + xaxis,
 		(mat.values[15] + mat.values[12]), true);
-	// BOTTOM
+	//BOTTOM
 	planes[2] = Plane(waxis + yaxis,
 		(mat.values[15] + mat.values[13]), true);
-	// TOP
+	//TOP
 	planes[3] = Plane(waxis - yaxis,
 		(mat.values[15] - mat.values[13]), true);
-	// FAR
+	//FAR
 	planes[4] = Plane(waxis - zaxis,
 		(mat.values[15] - mat.values[14]), true);
-	// NEAR
+	//NEAR
 	planes[5] = Plane(waxis + zaxis,
 		(mat.values[15] + mat.values[14]), true);
 

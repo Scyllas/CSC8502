@@ -45,13 +45,13 @@ Window::Window(std::string title, int sizeX, int sizeY, bool fullScreen)	{
 	}
 
 	if(fullScreen) {
-		DEVMODE dmScreenSettings;								// Device Mode
-		memset(&dmScreenSettings,0,sizeof(dmScreenSettings));	// Makes Sure Memory's Cleared
+		DEVMODE dmScreenSettings;								//Device Mode
+		memset(&dmScreenSettings,0,sizeof(dmScreenSettings));	//Makes Sure Memory's Cleared
 
-		dmScreenSettings.dmSize=sizeof(dmScreenSettings);		// Size Of The Devmode Structure
-		dmScreenSettings.dmPelsWidth	= sizeX;				// Selected Screen Width
-		dmScreenSettings.dmPelsHeight	= sizeY;				// Selected Screen Height
-		dmScreenSettings.dmBitsPerPel	= 32;					// Selected Bits Per Pixel
+		dmScreenSettings.dmSize=sizeof(dmScreenSettings);		//Size Of The Devmode Structure
+		dmScreenSettings.dmPelsWidth	= sizeX;				//Selected Screen Width
+		dmScreenSettings.dmPelsHeight	= sizeY;				//Selected Screen Height
+		dmScreenSettings.dmBitsPerPel	= 32;					//Selected Bits Per Pixel
 		dmScreenSettings.dmDisplayFrequency = 60;
 		dmScreenSettings.dmFields=DM_BITSPERPEL|DM_PELSWIDTH|DM_PELSHEIGHT|DM_DISPLAYFREQUENCY;
 
@@ -62,17 +62,17 @@ Window::Window(std::string title, int sizeX, int sizeY, bool fullScreen)	{
 	}
 
 	windowHandle = CreateWindowEx(fullScreen ? WS_EX_TOPMOST : NULL,
-	WINDOWCLASS,    // name of the window class
-	title.c_str(),   // title of the window
-	fullScreen ? WS_POPUP|WS_VISIBLE : WS_OVERLAPPEDWINDOW|WS_POPUP|WS_VISIBLE|WS_SYSMENU|WS_MAXIMIZEBOX|WS_MINIMIZEBOX,    // window style
-						(int)position.x,	// x-position of the window
-                        (int)position.y,	// y-position of the window
-                        (int)size.x,		// width of the window
-                        (int)size.y,		// height of the window
-                        NULL,				// No parent window!
-                        NULL,				// No Menus!
-                        hInstance,			// application handle
-                        NULL);				// No multiple windows!
+	WINDOWCLASS,    //name of the window class
+	title.c_str(),   //title of the window
+	fullScreen ? WS_POPUP|WS_VISIBLE : WS_OVERLAPPEDWINDOW|WS_POPUP|WS_VISIBLE|WS_SYSMENU|WS_MAXIMIZEBOX|WS_MINIMIZEBOX,    //window style
+						(int)position.x,	//x-position of the window
+                        (int)position.y,	//y-position of the window
+                        (int)size.x,		//width of the window
+                        (int)size.y,		//height of the window
+                        NULL,				//No parent window!
+                        NULL,				//No Menus!
+                        hInstance,			//application handle
+                        NULL);				//No multiple windows!
 
  	if(!windowHandle) {
 		std::cout << "Window::Window(): Failed to create window!" << std::endl;
@@ -146,9 +146,9 @@ bool	Window::UpdateWindow() {
 }
 
 void Window::CheckMessages(MSG &msg)	{
-	switch (msg.message)	{				// Is There A Message Waiting?
+	switch (msg.message)	{				//Is There A Message Waiting?
 		case (WM_QUIT):
-		case (WM_CLOSE): {					// Have We Received A Quit Message?
+		case (WM_CLOSE): {					//Have We Received A Quit Message?
 			window->ShowOSPointer(true);
 			window->LockMouseToWindow(false);
 			forceQuit = true;
@@ -172,9 +172,9 @@ void Window::CheckMessages(MSG &msg)	{
 			delete lpb;
 		}break;
 
-		default: {								// If Not, Deal With Window Messages
-			TranslateMessage(&msg);				// Translate The Message
-			DispatchMessage(&msg);				// Dispatch The Message
+		default: {								//If Not, Deal With Window Messages
+			TranslateMessage(&msg);				//Translate The Message
+			DispatchMessage(&msg);				//Dispatch The Message
 		}
 	}
 }

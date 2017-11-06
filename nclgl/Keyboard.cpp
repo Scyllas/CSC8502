@@ -27,7 +27,7 @@ keypresses until it receives a Wake()
 */
 void Keyboard::Sleep()	{
 	isAwake = false;	//Night night!
-	//Prevents incorrectly thinking keys have been held / pressed when waking back up
+	//Prevents incorrectly thinking keys have been held /pressed when waking back up
 	ZeroMemory(keyStates,  KEYBOARD_MAX * sizeof(bool));
 	ZeroMemory(holdStates, KEYBOARD_MAX * sizeof(bool));
 }

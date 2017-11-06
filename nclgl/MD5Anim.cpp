@@ -105,7 +105,7 @@ void MD5Anim::LoadMD5Anim( std::string filename )	{
 	//If we get to here, we've loaded in everything from the file, so we can close it
 	f.close();
 
-	//If what we've loaded in does not equal what we /should/ have loaded in, we'll output an error
+	//If what we've loaded in does not equal what we /should/have loaded in, we'll output an error
 	//
 	if(numLoadedFrames != numFrames || numLoadedJoints != numJoints || numLoadedBounds != numFrames) {
 		std::cout << "MD5Anim file has incorrect data..." << std::endl;
@@ -286,14 +286,14 @@ void MD5Anim::LoadMD5AnimFrame( std::ifstream &from, unsigned int &count)	{
 	*/
 	frames[frameNum].components = new float[numAnimatedComponents];
 
-	from >> tempLine;	//Load in the next line, which /should/ be "{"
+	from >> tempLine;	//Load in the next line, which /should/be "{"
 
 	if(tempLine == "{") {//In a well-behaved MD5 file, the first line will be '{'
 		for(unsigned int i = 0; i < numAnimatedComponents; ++i) {
 			//stream in the delta values of the current animation frame
 			from >> frames[frameNum].components[i];
 		}
-		from >> tempLine;	// Should be '}'
+		from >> tempLine;	//Should be '}'
 		++count;
 	}
 }
@@ -400,7 +400,7 @@ void	MD5Anim::TransformSkeleton(MD5Skeleton &skel, unsigned int frameNum) {
 			skelJoint.transform = MD5FileData::conversionMatrix * skelJoint.localTransform;
 		}
 		else{	
-			//If this joint /does/ have a parent, we transform the joint's transform by its
+			//If this joint /does/have a parent, we transform the joint's transform by its
 			//parent transform. Note that we don't have to transform it by the conversion matrix
 			//again, as the parent node will already contain it, due to being propagated from 
 			//the root node. Matrices are fun!

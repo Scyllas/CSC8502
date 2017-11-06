@@ -37,51 +37,51 @@ OGLRenderer::OGLRenderer(Window &window)	{
 
 	HWND windowHandle = window.GetHandle();
 
-	// Did We Get A Device Context?
+	//Did We Get A Device Context?
 	if (!(deviceContext=GetDC(windowHandle)))		{					
 		std::cout << "OGLRenderer::OGLRenderer(): Failed to create window!" << std::endl;
 		return;
 	}
 	
-	//A pixel format descriptor is a struct that tells the Windows OS what type of front / back buffers we want to create etc
+	//A pixel format descriptor is a struct that tells the Windows OS what type of front /back buffers we want to create etc
 	PIXELFORMATDESCRIPTOR pfd;
 	memset(&pfd, 0, sizeof(PIXELFORMATDESCRIPTOR));
 
 	pfd.nSize			= sizeof(PIXELFORMATDESCRIPTOR);
 	pfd.nVersion		= 1; 
    	pfd.dwFlags			= PFD_DOUBLEBUFFER | PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;   //It must be double buffered, it must support OGL(!), and it must allow us to draw to it...
-   	pfd.iPixelType		= PFD_TYPE_RGBA;	//We want our front / back buffer to have 4 channels!
+   	pfd.iPixelType		= PFD_TYPE_RGBA;	//We want our front /back buffer to have 4 channels!
    	pfd.cColorBits		= 32;				//4 channels of 8 bits each!
    	pfd.cDepthBits		= 24;				//24 bit depth buffer
 	pfd.cStencilBits	= 8;				//plus an 8 bit stencil buffer
    	pfd.iLayerType		= PFD_MAIN_PLANE;
 
 	GLuint		PixelFormat;
-	if (!(PixelFormat=ChoosePixelFormat(deviceContext,&pfd)))		{	// Did Windows Find A Matching Pixel Format for our PFD?
+	if (!(PixelFormat=ChoosePixelFormat(deviceContext,&pfd)))		{	//Did Windows Find A Matching Pixel Format for our PFD?
 		std::cout << "OGLRenderer::OGLRenderer(): Failed to choose a pixel format!" << std::endl;
 		return;
 	}
 
-	if(!SetPixelFormat(deviceContext,PixelFormat,&pfd))			{		// Are We Able To Set The Pixel Format?
+	if(!SetPixelFormat(deviceContext,PixelFormat,&pfd))			{		//Are We Able To Set The Pixel Format?
 		std::cout << "OGLRenderer::OGLRenderer(): Failed to set a pixel format!" << std::endl;
 		return;
 	}
 
 	HGLRC		tempContext;		//We need a temporary OpenGL context to check for OpenGL 3.2 compatibility...stupid!!!
-	if (!(tempContext=wglCreateContext(deviceContext)))				{	// Are We Able To get the temporary context?
+	if (!(tempContext=wglCreateContext(deviceContext)))				{	//Are We Able To get the temporary context?
 		std::cout << "OGLRenderer::OGLRenderer(): Cannot create a temporary context!" << std::endl;
 		wglDeleteContext(tempContext);
 		return;
 	}
 
-	if(!wglMakeCurrent(deviceContext,tempContext))					{	// Try To Activate The Rendering Context
+	if(!wglMakeCurrent(deviceContext,tempContext))					{	//Try To Activate The Rendering Context
 		std::cout << "OGLRenderer::OGLRenderer(): Cannot set temporary context!" << std::endl;
 		wglDeleteContext(tempContext);
 		return;
 	}
 
 	//Now we have a temporary context, we can find out if we support OGL 3.x
-	char* ver = (char*)glGetString(GL_VERSION); // ver must equal "3.2.0" (or greater!)
+	char* ver = (char*)glGetString(GL_VERSION); //ver must equal "3.2.0" (or greater!)
 	int major = ver[0] - '0';		//casts the 'correct' major version integer from our version string
 	int minor = ver[2] - '0';		//casts the 'correct' minor version integer from our version string
 
@@ -114,7 +114,7 @@ OGLRenderer::OGLRenderer(Window &window)	{
 	PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC) wglGetProcAddress("wglCreateContextAttribsARB");
 	renderContext = wglCreateContextAttribsARB(deviceContext,0, attribs);
 
-	// Check for the context, and try to make it the current rendering context
+	//Check for the context, and try to make it the current rendering context
 	if(!renderContext || !wglMakeCurrent(deviceContext,renderContext))		{			
 		std::cout << "OGLRenderer::OGLRenderer(): Cannot set OpenGL 3 context!" << std::endl;	//It's all gone wrong!
 		wglDeleteContext(renderContext);
@@ -368,7 +368,7 @@ void	OGLRenderer::DrawDebugCircle(DebugDrawMode mode, const Vector3 &at, const f
 	DebugDrawData*target = (mode == DEBUGDRAW_ORTHO ? target = orthoDebugData : target = perspectiveDebugData);
 
 	const int stepCount = 18;
-	const float divisor = 360.0f / stepCount;
+	const float divisor = 360.0f /stepCount;
 
 
 	for(int i = 0; i < stepCount; ++i) {

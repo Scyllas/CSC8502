@@ -26,7 +26,7 @@ void Quaternion::Normalise(){
 	float magnitude = sqrt(Dot(*this,*this));
 
 	if(magnitude > 0.0f){
-		float t= 1.0f / magnitude;
+		float t= 1.0f /magnitude;
 
 		x *= t;
 		y *= t;
@@ -113,9 +113,9 @@ Quaternion Quaternion::EulerAnglesToQuaternion(float pitch, float yaw, float rol
 
 Quaternion Quaternion::AxisAngleToQuaterion(const Vector3& vector, float degrees)	{
 	float theta = (float)DegToRad(degrees);
-	float result = (float)sin( theta / 2.0f );
+	float result = (float)sin( theta /2.0f );
 
-	return Quaternion((float)(vector.x * result), (float)(vector.y * result), (float)(vector.z * result), (float)cos( theta / 2.0f ));
+	return Quaternion((float)(vector.x * result), (float)(vector.y * result), (float)(vector.z * result), (float)cos( theta /2.0f ));
 }
 
 void Quaternion::GenerateW()	{
@@ -136,10 +136,10 @@ Quaternion Quaternion::Conjugate() const
 Quaternion Quaternion::FromMatrix(const Matrix4 &m)	{
 	Quaternion q;
 
-	q.w = sqrt(max(0.0f, (1.0f + m.values[0] + m.values[5] + m.values[10]))) / 2.0f;
-	q.x = sqrt(max(0.0f, (1.0f + m.values[0] - m.values[5] - m.values[10]))) / 2.0f;
-	q.y = sqrt(max(0.0f, (1.0f - m.values[0] + m.values[5] - m.values[10]))) / 2.0f;
-	q.z = sqrt(max(0.0f, (1.0f - m.values[0] - m.values[5] + m.values[10]))) / 2.0f;
+	q.w = sqrt(max(0.0f, (1.0f + m.values[0] + m.values[5] + m.values[10]))) /2.0f;
+	q.x = sqrt(max(0.0f, (1.0f + m.values[0] - m.values[5] - m.values[10]))) /2.0f;
+	q.y = sqrt(max(0.0f, (1.0f - m.values[0] + m.values[5] - m.values[10]))) /2.0f;
+	q.z = sqrt(max(0.0f, (1.0f - m.values[0] - m.values[5] + m.values[10]))) /2.0f;
 
 	q.x = (float)_copysign( q.x, m.values[9] - m.values[6] );
 	q.y = (float)_copysign( q.y, m.values[2] - m.values[8] );

@@ -14,7 +14,8 @@ Mesh::Mesh(void) {
 	texture = 0;
 	textureCoords = NULL;
 	indices = NULL;
-	numIndices = 0;
+	numIndices = 0;
+
 
 }
 
@@ -91,7 +92,7 @@ void Mesh::BufferData() {
 		vertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(VERTEX_BUFFER, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(VERTEX_BUFFER);
-	if (textureCoords) { // This bit is new !
+	if (textureCoords) { //This bit is new !
 		glGenBuffers(1, &bufferObject[TEXTURE_BUFFER]);
 		glBindBuffer(GL_ARRAY_BUFFER, bufferObject[TEXTURE_BUFFER]);
 		glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(Vector2),

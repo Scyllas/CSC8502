@@ -58,5 +58,6 @@ protected:
 	std::vector < SceneNode * > children;
 
 	float distanceFromCamera;
-	float boundingRadius;
+	float boundingRadius;
+
 };

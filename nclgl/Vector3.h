@@ -36,7 +36,7 @@ public:
 		float length = Length();
 
 		if(length != 0.0f)	{
-			length = 1.0f / length;
+			length = 1.0f /length;
 			x = x * length;
 			y = y * length;
 			z = z * length;
@@ -107,11 +107,11 @@ public:
 	}
 
 	inline Vector3  operator/(const Vector3  &a) const{
-		return Vector3(x / a.x,y / a.y, z / a.z);
+		return Vector3(x /a.x,y /a.y, z /a.z);
 	};
 
 	inline Vector3  operator/(const float v) const{
-		return Vector3(x / v,y / v, z / v);
+		return Vector3(x /v,y /v, z /v);
 	};
 
 	inline bool	operator==(const Vector3 &A)const {return (A.x == x && A.y == y && A.z == z) ? true : false;};

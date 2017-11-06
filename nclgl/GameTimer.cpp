@@ -13,7 +13,7 @@ Returns the Milliseconds since timer was started
 float GameTimer::GetMS() {
 	LARGE_INTEGER t;	
 	QueryPerformanceCounter(&t);
-	return (float)((t.QuadPart  - start.QuadPart) * 1000.0 / frequency.QuadPart);
+	return (float)((t.QuadPart  - start.QuadPart) * 1000.0 /frequency.QuadPart);
 }
 
 float	 GameTimer::GetTimedMS() {

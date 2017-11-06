@@ -12,7 +12,7 @@ vt xtex ytex
 vn xnorm ynorm znorm
 ...more normals
 
-f vert index / tex index / norm index  vert index / tex index / norm index  vert index / tex index / norm index
+f vert index /tex index /norm index  vert index /tex index /norm index  vert index /tex index /norm index
 ...more faces
 
 (i.e there's a set of float/float/float for each vertex of a face)
@@ -108,7 +108,7 @@ bool	OBJMesh::LoadOBJMesh(std::string filename)	{
 				f <vertex index>//<normal index>
 				instead of <vertex index>/<tex coord>/<normal index>
 
-				you can be some OBJ files will have "/ /" instead of "//" though... :(
+				you can be some OBJ files will have "//" instead of "//" though... :(
 			*/
 			bool	skipTex = false;
 			if(faceData.find("//") != std::string::npos) {	
@@ -155,7 +155,7 @@ bool	OBJMesh::LoadOBJMesh(std::string filename)	{
 				else if(faceIndices.size() == 6) {	//This face has vertex, and one other index...
 					for(int i = 0; i < 6; i += 2) {
 						currentMesh->vertIndices.push_back(faceIndices.at(i));
-						if(!skipTex) {		// a double slash means it's skipping tex info...
+						if(!skipTex) {		//a double slash means it's skipping tex info...
 							currentMesh->texIndices.push_back(faceIndices.at(i+1));
 						}
 						else{

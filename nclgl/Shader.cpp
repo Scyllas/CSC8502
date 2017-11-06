@@ -100,6 +100,16 @@ bool Shader::LinkProgram() {
 
 	GLint code;
 	glGetProgramiv(program, GL_LINK_STATUS, &code);
+
+	if (code == GL_FALSE) {
+		cout << " linking failed !" << endl;
+		char error[512];
+		glGetProgramInfoLog(program, sizeof(error), NULL, error);
+		cout << error;
+		loadFailed = true;
+	}
+
+
 	return code == GL_TRUE ? true : false;
 
 }
