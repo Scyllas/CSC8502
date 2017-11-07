@@ -29,7 +29,8 @@ HeightMap::HeightMap(std::string name) {
 
 	}
 
-	delete data;	numIndices = 0;
+	delete data;
+	numIndices = 0;
 
 	for (int x = 0; x < RAW_WIDTH - 1; ++x) {
 		for (int z = 0; z < RAW_HEIGHT - 1; ++z) {
@@ -50,6 +51,7 @@ HeightMap::HeightMap(std::string name) {
 
 	}
 
+	GenerateNormals();
 	BufferData();
 
 }
