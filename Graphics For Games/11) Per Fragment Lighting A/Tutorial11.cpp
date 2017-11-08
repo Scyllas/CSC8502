@@ -1,7 +1,7 @@
 #pragma comment(lib, "nclgl.lib")
 
 #include "../../nclgl/window.h"
-#include "Renderer.h"
+#include "Renderer11.h"
 
 int main() {
 	Window w("Per Pixel Lighting!", 1280,960,false);

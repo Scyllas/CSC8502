@@ -1,4 +1,4 @@
-#include "Renderer.h"
+#include "Renderer11.h"
 Renderer::Renderer(Window & parent) : OGLRenderer(parent) {
 	camera = new Camera(0.0f, 0.0f, Vector3(
 		RAW_WIDTH * HEIGHTMAP_X / 2.0f, 500, RAW_HEIGHT * HEIGHTMAP_Z));
@@ -8,7 +8,7 @@ Renderer::Renderer(Window & parent) : OGLRenderer(parent) {
 		SHADERDIR"PerPixelFragment.glsl");
 
 	heightMap->SetTexture(SOIL_load_OGL_texture(
-		TEXTUREDIR"Barren Reds.JPG ", SOIL_LOAD_AUTO,
+		TEXTUREDIR"Barren Reds.JPG", SOIL_LOAD_AUTO,
 		SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
 
 	if (!currentShader->LinkProgram() || !heightMap->GetTexture()) {
@@ -38,7 +38,6 @@ Renderer ::~Renderer(void) {
 	delete camera;
 	delete heightMap;
 	delete light;
-	delete light2;
 
 }
 
@@ -47,6 +46,7 @@ void Renderer::UpdateScene(float msec) {
 	viewMatrix = camera->BuildViewMatrix();
 
 }
+
 
 void Renderer::RenderScene() {
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
