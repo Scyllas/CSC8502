@@ -30,7 +30,7 @@ void main (void) {
 	
 	float rFactor = max (0.0 , dot(halfDir , IN.normal));
 	float sFactor = pow ( rFactor , 50.0);
-
+	
 	vec3 colour = ( diffuse.rgb * lightColour.rgb);
 	colour += ( lightColour.rgb * sFactor) * 0.33;
 	gl_FragColor = vec4 ( colour * atten * lambert, diffuse.a);

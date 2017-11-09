@@ -24,24 +24,24 @@ void Camera::UpdateCamera(float msec)	{
 	msec *= 5.0f;
 
 	if(Window::GetKeyboard()->KeyDown(KEYBOARD_W)) {
-		position += Matrix4::Rotation(yaw, Vector3(0,1,0)) * Vector3(0,0,-1) * msec;
+		position += Matrix4::Rotation(yaw, Vector3(0,1,0)) * Vector3(0,0,-0.25) * msec;
 	}
 	if(Window::GetKeyboard()->KeyDown(KEYBOARD_S)) {
-		position -= Matrix4::Rotation(yaw, Vector3(0,1,0)) * Vector3(0,0,-1) * msec;
+		position -= Matrix4::Rotation(yaw, Vector3(0,1,0)) * Vector3(0,0,-0.25) * msec;
 	}
 
 	if(Window::GetKeyboard()->KeyDown(KEYBOARD_A)) {
-		position += Matrix4::Rotation(yaw, Vector3(0,1,0)) * Vector3(-1,0,0) * msec;
+		position += Matrix4::Rotation(yaw, Vector3(0,1,0)) * Vector3(-0.25,0,0) * msec;
 	}
 	if(Window::GetKeyboard()->KeyDown(KEYBOARD_D)) {
-		position -= Matrix4::Rotation(yaw, Vector3(0,1,0)) * Vector3(-1,0,0) * msec;
+		position -= Matrix4::Rotation(yaw, Vector3(0,1,0)) * Vector3(-0.25,0,0) * msec;
 	}
 
 	if(Window::GetKeyboard()->KeyDown(KEYBOARD_SHIFT)) {
-		position.y += msec;
+		position.y += msec * 0.25;
 	}
 	if(Window::GetKeyboard()->KeyDown(KEYBOARD_SPACE)) {
-		position.y -= msec;
+		position.y -= msec * 0.25;
 	}
 }
 

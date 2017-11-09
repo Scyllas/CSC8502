@@ -70,6 +70,8 @@ Mesh * Mesh::GenerateQuad() {
 	m->vertices = new Vector3[m->numVertices];
 	m->textureCoords = new Vector2[m->numVertices];
 	m->colours = new Vector4[m->numVertices];
+	m->normals = new Vector3[m->numVertices];
+	m->tangents = new Vector3[m->numVertices];
 
 	m->vertices[0] = Vector3(-1.0f, -1.0f, 0.0f);
 	m->vertices[1] = Vector3(-1.0f, 1.0f, 0.0f);
@@ -83,6 +85,8 @@ Mesh * Mesh::GenerateQuad() {
 
 	for (int i = 0; i < 4; ++i) {
 		m->colours[i] = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+		m->normals[i] = Vector3(0.0f, 0.0f, -1.0f);
+		m->tangents[i] = Vector3(1.0f, 0.0f, 0.0f);
 
 	}
 
@@ -142,7 +146,9 @@ void Mesh::BufferData() {
 			tangents, GL_STATIC_DRAW);
 		glVertexAttribPointer(TANGENT_BUFFER, 3, GL_FLOAT, GL_FALSE, 0, 0);
 		glEnableVertexAttribArray(TANGENT_BUFFER);
-	}
+
+	}
+
 	glBindVertexArray(0);
 
 }
@@ -258,7 +264,10 @@ void Mesh::GenerateTangents() {
 		tangents[i].Normalise();
 
 	}
-}Vector3 Mesh::GenerateTangent(const Vector3 &a, const Vector3 &b,
+
+}
+
+Vector3 Mesh::GenerateTangent(const Vector3 &a, const Vector3 &b,
 	const Vector3 &c, const Vector2 & ta,
 	const Vector2 & tb, const Vector2 & tc) {
 	Vector2 coord1 = tb - ta;
@@ -272,4 +281,5 @@ void Mesh::GenerateTangents() {
 	float factor = 1.0f / (coord1.x * coord2.y - coord2.x * coord1.y);
 
 	return axis * factor;
-}
+
+}

@@ -1,10 +1,10 @@
 #pragma comment(lib, "nclgl.lib")
 
 #include "../../NCLGL/window.h"
-#include "Renderer.h"
+#include "Renderer12.h"
 
 int main() {
-	Window w("Per Pixel Lighting!", 1920,1080,false);
+	Window w("Per Pixel Lighting!", 1920,1080,true);
 	if(!w.HasInitialised()) {
 		return -1;
 	}

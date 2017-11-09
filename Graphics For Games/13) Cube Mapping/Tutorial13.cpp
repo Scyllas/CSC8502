@@ -1,7 +1,7 @@
-#pragma comment(lib, "framework.lib")
+#pragma comment(lib, "nclgl.lib")
 
 #include "../../nclgl/window.h"
-#include "Renderer.h"
+#include "Renderer13.h"
 
 int main() {
 	Window w("Cube Mapping! sky textures courtesy of http://www.hazelwhorley.com", 800,600,false);

@@ -84,7 +84,7 @@ bool Shader::LoadShaderFile(string from, string & into) {
 	}
 
 	file.close();
-	cout << into << endl << endl;
+//	cout << into << endl << endl;
 	cout << " Loaded shader text !" << endl << endl;
 	return true;
 

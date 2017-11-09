@@ -14,7 +14,7 @@
     <ProjectGuid>{2E797EF1-6CA2-4611-BC4F-A3146AEBB468}</ProjectGuid>
     <RootNamespace>Tutorial1</RootNamespace>
     <ProjectName>Tutorial 13 - Cube Mapping</ProjectName>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.10240.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -71,7 +71,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Renderer13.cpp" />
     <ClCompile Include="Tutorial13.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Renderer13.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
