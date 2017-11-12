@@ -4,7 +4,8 @@
 enum MeshBuffer {
 	VERTEX_BUFFER, COLOUR_BUFFER, TEXTURE_BUFFER,
 	NORMAL_BUFFER, TANGENT_BUFFER, INDEX_BUFFER,
-	MAX_BUFFER
+	MAX_BUFFER
+
 
 };
 
@@ -23,7 +24,8 @@ public:
 	GLuint GetTexture() { return texture; }
 
 	void SetBumpMap(GLuint tex) { bumpTexture = tex; }
-	GLuint GetBumpMap() { return bumpTexture; }
+	GLuint GetBumpMap() { return bumpTexture; }
+
 
 protected:
 	void BufferData();
@@ -36,7 +38,8 @@ protected:
 	GLuint type;
 	GLuint bumpTexture;
 
-	Vector3 * tangents;	Vector3 * vertices;
+	Vector3 * tangents;
+	Vector3 * vertices;
 	Vector3 * normals;
 	Vector4 * colours;
 

@@ -38,10 +38,10 @@ void Camera::UpdateCamera(float msec)	{
 	}
 
 	if(Window::GetKeyboard()->KeyDown(KEYBOARD_SHIFT)) {
-		position.y += msec * 0.25;
+		position.y += msec * 0.25f;
 	}
 	if(Window::GetKeyboard()->KeyDown(KEYBOARD_SPACE)) {
-		position.y -= msec * 0.25;
+		position.y -= msec * 0.25f;
 	}
 }
 
