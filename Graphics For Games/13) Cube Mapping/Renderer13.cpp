@@ -13,11 +13,11 @@ Renderer::Renderer(Window & parent) : OGLRenderer(parent) {
 		Vector4(0.9f, 0.9f, 1.0f, 1),
 		(RAW_WIDTH * HEIGHTMAP_X) / 2.0f);
 
-	reflectShader = new Shader(SHADERDIR"PerPixelVertex.glsl",
+	reflectShader = new Shader(SHADERDIR"PerPixelVert.glsl",
 		SHADERDIR"reflectFragment.glsl");
 	skyboxShader = new Shader(SHADERDIR"skyboxVertex.glsl",
 		SHADERDIR"skyboxFragment.glsl");
-	lightShader = new Shader(SHADERDIR"PerPixelVertex.glsl",
+	lightShader = new Shader(SHADERDIR"PerPixelVert.glsl",
 		SHADERDIR"PerPixelFragment.glsl");
 
 	if (!reflectShader->LinkProgram() || !lightShader->LinkProgram() ||
@@ -112,13 +112,10 @@ void Renderer::DrawHeightmap() {
 	SetCurrentShader(lightShader);
 	SetShaderLight(*light);
 
-	glUniform3fv(glGetUniformLocation(currentShader->GetProgram(),
-		"cameraPos"), 1, (float *)& camera->GetPosition());
+	glUniform3fv(glGetUniformLocation(currentShader->GetProgram(),		"cameraPos"), 1, (float *)& camera->GetPosition());
 
-	glUniform1i(glGetUniformLocation(currentShader->GetProgram(),
-		"diffuseTex"), 0);
-	glUniform1i(glGetUniformLocation(currentShader->GetProgram(),
-		"bumpTex"), 1);
+	glUniform1i(glGetUniformLocation(currentShader->GetProgram(),		"diffuseTex"), 0);
+	glUniform1i(glGetUniformLocation(currentShader->GetProgram(),		"bumpTex"), 1);
 
 	modelMatrix.ToIdentity();
 	textureMatrix.ToIdentity();

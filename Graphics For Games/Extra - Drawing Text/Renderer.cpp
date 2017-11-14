@@ -33,7 +33,7 @@ Renderer::Renderer(Window &parent) : OGLRenderer(parent)	{
 	camera  = new Camera();	//A camera!
 
 	//Again there's no fancy shader stuff, so it's just tutorial 3 again...
-	currentShader = new Shader(TEXTUREDIR"TexturedVertex.glsl", TEXTUREDIR"TexturedFragment.glsl");
+	currentShader = new Shader(SHADERDIR"TexturedVertex.glsl", SHADERDIR"TexturedFragment.glsl");
 	
 	if(!currentShader->LinkProgram()) {
 		return;
