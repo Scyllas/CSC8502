@@ -320,10 +320,10 @@ void Renderer::DrawWater() {
 		Matrix4::Scale(Vector3(heightX, 1, heightZ)) *
 		Matrix4::Rotation(90, Vector3(1.0f, 0.0f, 0.0f));
 
-	textureMatrix = Matrix4::Scale(Vector3(10.0f, 10.0f, 10.0f)) *
+/*	textureMatrix = Matrix4::Scale(Vector3(10.0f, 10.0f, 10.0f)) *
 		Matrix4::Rotation(waterRotate, Vector3(0.0f, 0.0f, 1.0f));
 
-
+*/
 	UpdateShaderMatrices();
 
 	water->Draw();
