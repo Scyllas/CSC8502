@@ -8,6 +8,7 @@ Renderer::Renderer(Window & parent) : OGLRenderer(parent) {
 
 	quad = Mesh::GenerateQuad();
 	water = Mesh::GenerateQuad();
+	skyBox = Mesh::GenerateQuad();
 
 	pointLights = new Light[LIGHTNUM * LIGHTNUM];
 	for (int x = 0; x < LIGHTNUM; ++x) {
@@ -30,18 +31,38 @@ Renderer::Renderer(Window & parent) : OGLRenderer(parent) {
 
 	}
 
+	light = new Light(
+		Vector3((RAW_HEIGHT * HEIGHTMAP_X / 2.0f), 500.0f,(RAW_HEIGHT * HEIGHTMAP_Z / 2.0f)),
+		Vector4(0.9f, 0.9f, 1.0f, 1),
+		(RAW_WIDTH * HEIGHTMAP_X) / 2.0f);
+
 	water->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"Water.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
-	basicFont = new Font(SOIL_load_OGL_texture(SHADERDIR"tahoma.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_COMPRESS_TO_DXT), 16, 16);
+	basicFont = new Font(SOIL_load_OGL_texture(TEXTUREDIR"tahoma.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_COMPRESS_TO_DXT), 16, 16);
 	heightMap = new HeightMap(TEXTUREDIR"terrain.raw");
 	heightMap->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"Barren Reds.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
 	heightMap->SetBumpMap(SOIL_load_OGL_texture(TEXTUREDIR"Barren RedsDOT3.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
+	cubeMap = SOIL_load_OGL_cubemap(
+		TEXTUREDIR"rusted_west.jpg", TEXTUREDIR"rusted_east.jpg",
+		TEXTUREDIR"rusted_up.jpg", TEXTUREDIR"rusted_down.jpg",
+		TEXTUREDIR"rusted_south.jpg", TEXTUREDIR"rusted_north.jpg",
+		SOIL_LOAD_RGB,
+		SOIL_CREATE_NEW_ID, 0
+	);
+	skyBox->SetTexture(cubeMap);
 
 	SetTextureRepeating(heightMap->GetTexture(), true);
 	SetTextureRepeating(heightMap->GetBumpMap(), true);
 	SetTextureRepeating(water->GetTexture(), true);
 
+	if (!cubeMap) {
+		return;
+	}
 	sphere = new OBJMesh();
 	if (!sphere->LoadOBJMesh(MESHDIR"ico.obj")) {
+		return;
+	}
+	textShader = new Shader(SHADERDIR"TextVertex.glsl", SHADERDIR"TextFragment.glsl");
+	if (!textShader->LinkProgram()) {
 		return;
 	}
 	sceneShader = new Shader(SHADERDIR"BumpVertex.glsl", SHADERDIR"bufferFragment.glsl");
@@ -60,7 +81,14 @@ Renderer::Renderer(Window & parent) : OGLRenderer(parent) {
 	if (!reflectShader->LinkProgram()) {
 		return;
 	}
-
+	skyboxShader = new Shader(SHADERDIR"skyboxVertex.glsl",	SHADERDIR"skyboxFragment.glsl");
+	if (!skyboxShader->LinkProgram()) {
+		return;
+	}
+	lightShader = new Shader(SHADERDIR"PerPixelVert.glsl",	SHADERDIR"PerPixelFragment.glsl");
+	if (!lightShader->LinkProgram()) {
+		return;
+	}
 	glGenFramebuffers(1, &bufferFBO);
 	glGenFramebuffers(1, &pointLightFBO);
 
@@ -104,8 +132,8 @@ Renderer::Renderer(Window & parent) : OGLRenderer(parent) {
 	waterRotate = 0.0f;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-
+	//glEnable(GL_CULL_FACE);
+	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	init = true;
@@ -116,13 +144,19 @@ Renderer ::~Renderer(void) {
 	delete combineShader;
 	delete pointlightShader;
 	delete reflectShader;
+	delete textShader;
+	delete skyboxShader;
+	delete lightShader;
 
 	delete basicFont;
 	delete heightMap;
 	delete camera;
 	delete sphere;
 	delete quad;
+	delete water;
+	delete skyBox;
 	delete[] pointLights;
+	delete light;
 
 	glDeleteTextures(1, &bufferColourTex);
 	glDeleteTextures(1, &bufferNormalTex);
@@ -153,41 +187,53 @@ void Renderer::GenerateScreenTexture(GLuint & into, bool depth) {
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 }
+
 void Renderer::UpdateScene(float msec) {
+	storeMsec(msec);
 	camera->UpdateCamera(msec);
 	viewMatrix = camera->BuildViewMatrix();
 	rotation = msec * 0.01f;
 	waterRotate += msec / 1000.0f;
 
 }
+
 void Renderer::RenderScene() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-	GenerateText();
+
 	FillBuffers();
+	DrawSkybox();
 	DrawPointLights();
 	CombineBuffers();
+
+	GenerateText();
 	SwapBuffers();
+	
 
 }
 
-void Renderer::GenerateText() {
+void Renderer::DrawSkybox() {
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Clear Screen And Depth Buffer
+	glDepthMask(GL_FALSE);
+	SetCurrentShader(skyboxShader);
+	glUseProgram(currentShader->GetProgram());
 
-	SetCurrentShader(sceneShader);
-	glUseProgram(currentShader->GetProgram());	//Enable the shader...
-												//And turn on texture unit 0
-	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "diffuseTex"), 0);
+	glUniform1i(glGetUniformLocation(currentShader->GetProgram(),
+		"cubeTex"), 2);
 
-	//Render function to encapsulate our font rendering!
-	DrawText("This is orthographic text!", Vector3(0, 0, 0), 16.0f);
-	DrawText("This is perspective text!!!!", Vector3(0, 0, -1000), 64.0f, true);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap);
 
-	glUseProgram(0);	//That's everything!
+	UpdateShaderMatrices();
+	skyBox->Draw();
+
+	glUseProgram(0);
+	glDepthMask(GL_TRUE);
 
 }
+
+
 
 void Renderer::FillBuffers() {
 	glBindFramebuffer(GL_FRAMEBUFFER, bufferFBO);
@@ -198,8 +244,7 @@ void Renderer::FillBuffers() {
 		"diffuseTex"), 0);
 	glUniform1i(glGetUniformLocation(currentShader->GetProgram(),
 		"bumpTex"), 1);
-	DrawText("This is orthographic text!", Vector3(0, 0, 0), 16.0f);
-	DrawText("This is perspective text!!!!", Vector3(0, 0, -1000), 64.0f, true);
+
 
 	projMatrix = Matrix4::Perspective(1.0f, 10000.0f,
 		(float)width / (float)height, 45.0f);
@@ -213,8 +258,11 @@ void Renderer::FillBuffers() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 }
+
 void Renderer::DrawPointLights() {
+
 	SetCurrentShader(pointlightShader);
+	glUseProgram(currentShader->GetProgram());
 
 	glBindFramebuffer(GL_FRAMEBUFFER, pointLightFBO);
 
@@ -287,8 +335,11 @@ void Renderer::DrawPointLights() {
 	glUseProgram(0);
 
 }
+
 void Renderer::CombineBuffers() {
+
 	SetCurrentShader(combineShader);
+	glUseProgram(currentShader->GetProgram());
 
 	projMatrix = Matrix4::Orthographic(-1, 1, 1, -1, -1, 1);
 	UpdateShaderMatrices();
@@ -310,11 +361,10 @@ void Renderer::CombineBuffers() {
 	glBindTexture(GL_TEXTURE_2D, lightSpecularTex);
 
 	quad->Draw();
-
+	
 	glUseProgram(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
-
 
 void Renderer::DrawWater() {
 	//SetCurrentShader(reflectShader);
@@ -324,12 +374,8 @@ void Renderer::DrawWater() {
 
 	glUniform1i(glGetUniformLocation(currentShader->GetProgram(),
 		"diffuseTex"), 0);
-
-	glUniform1i(glGetUniformLocation(currentShader->GetProgram(),
-		"cubeTex"), 2);
-
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMap);*/
+*/
+	
 
 	float heightX = (RAW_WIDTH * HEIGHTMAP_X / 2.0f);
 
@@ -344,14 +390,50 @@ void Renderer::DrawWater() {
 
 	/*	textureMatrix = Matrix4::Scale(Vector3(10.0f, 10.0f, 10.0f)) *
 			Matrix4::Rotation(waterRotate, Vector3(0.0f, 0.0f, 1.0f));
-
-	*/
+*/			
+	
 	UpdateShaderMatrices();
 
 	water->Draw();
 
 	glUseProgram(0);
 
+}
+
+void Renderer::GenerateText() {
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	SetCurrentShader(textShader);
+	glUseProgram(currentShader->GetProgram());	//Enable the shader...
+												//And turn on texture unit 0
+	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "diffuseTex"), 0);
+
+	//Render function to encapsulate our font rendering!
+	DrawText(getFPS(), Vector3(0, 0, 0), 16.0f);
+	//DrawText("This is perspective text!!!!", Vector3(0, 0, -1000), 64.0f, true);
+
+	glUseProgram(0);	//That's everything!
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+}
+
+void Renderer::storeMsec(float msec) {
+
+	msecArrayLocation %= msecArraySize;
+	msecArray[msecArrayLocation] = msec;
+	msecArrayLocation++;
+	if (msecArrayLength < msecArraySize) msecArrayLength++;
+}
+std::string Renderer::getFPS() {
+
+	float totalTime = 0.0f;
+	float fps;
+	for (int i = 0; i < msecArrayLength; i++) {
+		totalTime += msecArray[i];
+	}
+
+	fps = 1000.f / (totalTime / msecArrayLength);
+	return to_string(fps);
 }
 
 void Renderer::DrawText(const std::string &text, const Vector3 &position, const float size, const bool perspective) {

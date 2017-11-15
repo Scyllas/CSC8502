@@ -4,7 +4,7 @@
 #include "Renderer.h"
 
 int main() {
-	Window w("Deferred Rendering!", 1920, 1080, false); //This is all boring win32 window creation stuff!
+	Window w("Deferred Rendering!", 1280, 720, false); //This is all boring win32 window creation stuff!
 	if (!w.HasInitialised()) {
 		return -1;
 	}
@@ -18,7 +18,7 @@ int main() {
 
 //	w.LockMouseToWindow(true);
 //  w.ShowOSPointer(false);
-
+	w.GetTimer()->GetTimedMS(); //Reset window timer to discard 'loading' time for first frame deltatime
 	while (w.UpdateWindow() && !Window::GetKeyboard()->KeyDown(KEYBOARD_ESCAPE)) {
 		renderer.UpdateScene(w.GetTimer()->GetTimedMS());
 		renderer.RenderScene();
