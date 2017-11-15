@@ -1,5 +1,6 @@
 # include"Renderer.h"
 
+
 Renderer::Renderer(Window & parent) : OGLRenderer(parent) {
 	rotation = 0.0f;
 	camera = new Camera(0.0f, 0.0f,
@@ -28,11 +29,12 @@ Renderer::Renderer(Window & parent) : OGLRenderer(parent) {
 		}
 
 	}
-	water->SetTexture(SOIL_load_OGL_texture(	TEXTUREDIR"Water.tga", SOIL_LOAD_AUTO,	SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
-	heightMap = new HeightMap(TEXTUREDIR"terrain.raw");
-	heightMap->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"Barren Reds.JPG", SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
 
-	heightMap->SetBumpMap(SOIL_load_OGL_texture(TEXTUREDIR"Barren RedsDOT3.tga", SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
+	water->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"Water.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
+	basicFont = new Font(SOIL_load_OGL_texture(SHADERDIR"tahoma.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_COMPRESS_TO_DXT), 16, 16);
+	heightMap = new HeightMap(TEXTUREDIR"terrain.raw");
+	heightMap->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"Barren Reds.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
+	heightMap->SetBumpMap(SOIL_load_OGL_texture(TEXTUREDIR"Barren RedsDOT3.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
 
 	SetTextureRepeating(heightMap->GetTexture(), true);
 	SetTextureRepeating(heightMap->GetBumpMap(), true);
@@ -42,26 +44,23 @@ Renderer::Renderer(Window & parent) : OGLRenderer(parent) {
 	if (!sphere->LoadOBJMesh(MESHDIR"ico.obj")) {
 		return;
 	}
-	sceneShader = new Shader(SHADERDIR"BumpVertex.glsl",SHADERDIR"bufferFragment.glsl");
+	sceneShader = new Shader(SHADERDIR"BumpVertex.glsl", SHADERDIR"bufferFragment.glsl");
 	if (!sceneShader->LinkProgram()) {
 		return;
 	}
 	combineShader = new Shader(SHADERDIR"combinevert.glsl", SHADERDIR"combinefrag.glsl");
 	if (!combineShader->LinkProgram()) {
 		return;
-
 	}
-	pointlightShader = new Shader(SHADERDIR"pointlightvert.glsl",SHADERDIR"pointlightfrag.glsl");
+	pointlightShader = new Shader(SHADERDIR"pointlightvert.glsl", SHADERDIR"pointlightfrag.glsl");
 	if (!pointlightShader->LinkProgram()) {
 		return;
-
 	}
-	reflectShader = new Shader(SHADERDIR"PerPixelVert.glsl",
-		SHADERDIR"reflectFragment.glsl");
+	reflectShader = new Shader(SHADERDIR"PerPixelVert.glsl", SHADERDIR"reflectFragment.glsl");
 	if (!reflectShader->LinkProgram()) {
 		return;
-
 	}
+
 	glGenFramebuffers(1, &bufferFBO);
 	glGenFramebuffers(1, &pointLightFBO);
 
@@ -106,8 +105,9 @@ Renderer::Renderer(Window & parent) : OGLRenderer(parent) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	glEnable(GL_BLEND);
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	init = true;
 
 }
@@ -117,6 +117,7 @@ Renderer ::~Renderer(void) {
 	delete pointlightShader;
 	delete reflectShader;
 
+	delete basicFont;
 	delete heightMap;
 	delete camera;
 	delete sphere;
@@ -163,12 +164,31 @@ void Renderer::RenderScene() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
+	GenerateText();
 	FillBuffers();
 	DrawPointLights();
 	CombineBuffers();
 	SwapBuffers();
 
 }
+
+void Renderer::GenerateText() {
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Clear Screen And Depth Buffer
+
+	SetCurrentShader(sceneShader);
+	glUseProgram(currentShader->GetProgram());	//Enable the shader...
+												//And turn on texture unit 0
+	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "diffuseTex"), 0);
+
+	//Render function to encapsulate our font rendering!
+	DrawText("This is orthographic text!", Vector3(0, 0, 0), 16.0f);
+	DrawText("This is perspective text!!!!", Vector3(0, 0, -1000), 64.0f, true);
+
+	glUseProgram(0);	//That's everything!
+
+}
+
 void Renderer::FillBuffers() {
 	glBindFramebuffer(GL_FRAMEBUFFER, bufferFBO);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -178,12 +198,14 @@ void Renderer::FillBuffers() {
 		"diffuseTex"), 0);
 	glUniform1i(glGetUniformLocation(currentShader->GetProgram(),
 		"bumpTex"), 1);
+	DrawText("This is orthographic text!", Vector3(0, 0, 0), 16.0f);
+	DrawText("This is perspective text!!!!", Vector3(0, 0, -1000), 64.0f, true);
 
 	projMatrix = Matrix4::Perspective(1.0f, 10000.0f,
 		(float)width / (float)height, 45.0f);
 	modelMatrix.ToIdentity();
 	UpdateShaderMatrices();
-
+	
 	heightMap->Draw();
 	DrawWater();
 
@@ -320,14 +342,40 @@ void Renderer::DrawWater() {
 		Matrix4::Scale(Vector3(heightX, 1, heightZ)) *
 		Matrix4::Rotation(90, Vector3(1.0f, 0.0f, 0.0f));
 
-/*	textureMatrix = Matrix4::Scale(Vector3(10.0f, 10.0f, 10.0f)) *
-		Matrix4::Rotation(waterRotate, Vector3(0.0f, 0.0f, 1.0f));
+	/*	textureMatrix = Matrix4::Scale(Vector3(10.0f, 10.0f, 10.0f)) *
+			Matrix4::Rotation(waterRotate, Vector3(0.0f, 0.0f, 1.0f));
 
-*/
+	*/
 	UpdateShaderMatrices();
 
 	water->Draw();
 
 	glUseProgram(0);
 
+}
+
+void Renderer::DrawText(const std::string &text, const Vector3 &position, const float size, const bool perspective) {
+	//Create a new temporary TextMesh, using our line of text and our font
+	TextMesh* mesh = new TextMesh(text, *basicFont);
+
+	//This just does simple matrix setup to render in either perspective or
+	//orthographic mode, there's nothing here that's particularly tricky.
+	if (perspective) {
+		modelMatrix = Matrix4::Translation(position) * Matrix4::Scale(Vector3(size, size, 1));
+		viewMatrix = camera->BuildViewMatrix();
+		projMatrix = Matrix4::Perspective(1.0f, 10000.0f, (float)width / (float)height, 45.0f);
+	}
+	else {
+		//In ortho mode, we subtract the y from the height, so that a height of 0
+		//is at the top left of the screen, which is more intuitive
+		//(for me anyway...)
+		modelMatrix = Matrix4::Translation(Vector3(position.x, height - position.y, position.z)) * Matrix4::Scale(Vector3(size, size, 1));
+		viewMatrix.ToIdentity();
+		projMatrix = Matrix4::Orthographic(-1.0f, 1.0f, (float)width, 0.0f, (float)height, 0.0f);
+	}
+	//Either way, we update the matrices, and draw the mesh
+	UpdateShaderMatrices();
+	mesh->Draw();
+
+	delete mesh; //Once it's drawn, we don't need it anymore!
 }

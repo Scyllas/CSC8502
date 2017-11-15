@@ -4,7 +4,7 @@
 #include "Renderer.h"
 
 int main() {
-	Window w("Deferred Rendering!", 800, 600, false); //This is all boring win32 window creation stuff!
+	Window w("Deferred Rendering!", 1920, 1080, false); //This is all boring win32 window creation stuff!
 	if (!w.HasInitialised()) {
 		return -1;
 	}
