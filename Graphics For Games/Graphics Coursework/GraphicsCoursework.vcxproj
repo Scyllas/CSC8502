@@ -73,11 +73,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="SceneA.h" />
+    <ClInclude Include="SceneB.h" />
+    <ClInclude Include="SceneC.h" />
+    <ClInclude Include="SharedFunctions.h" />
     <ClInclude Include="TextMesh.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="SceneA.cpp" />
+    <ClCompile Include="SceneB.cpp" />
+    <ClCompile Include="SceneC.cpp" />
     <ClCompile Include="TextMesh.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

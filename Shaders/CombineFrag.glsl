@@ -10,9 +10,15 @@ in Vertex {
 out vec4 gl_FragColor ;
 
 void main ( void ) {
-	vec3 diffuse = texture ( diffuseTex , IN . texCoord ). xyz ;
-	vec3 light = texture ( emissiveTex , IN . texCoord ). xyz ;
-	vec3 specular = texture ( specularTex , IN . texCoord ). xyz ;
+	vec3 diffuse = texture (diffuseTex , IN.texCoord ).xyz;
+	vec3 light = texture (emissiveTex , IN.texCoord ).xyz;
+	vec3 specular = texture (specularTex , IN.texCoord ).xyz;
+	
+//	if(gl_FragColor.rgba == 0.0f){
+	
+		
+	
+//	}
 	
 	gl_FragColor . xyz = diffuse * 0.2; // ambient
 	gl_FragColor . xyz += diffuse * light ; // lambert
