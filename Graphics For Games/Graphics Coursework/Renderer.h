@@ -15,7 +15,7 @@ public:
 	virtual ~Renderer(void);
 
 
-	virtual void RenderScene(bool flag);
+	virtual void RenderScene(int flag);
 	bool HasInitialised();
 	virtual void UpdateScene(float msec);
 
@@ -24,6 +24,6 @@ protected:
 	// Make a new texture ...
 	
 	SceneA * A;
-	SceneB * B;
+	//SceneB * B;
 	//SceneC C;
 };

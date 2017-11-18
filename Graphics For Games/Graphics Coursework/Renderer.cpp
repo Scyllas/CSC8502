@@ -5,7 +5,7 @@
 Renderer::Renderer(Window & parent) {
 
 	A = new SceneA(parent);
-	B = new SceneB(parent);
+	//B = new SceneB(parent);
 	//C = SceneC(parent);
 
 }
@@ -14,7 +14,7 @@ Renderer ::~Renderer(void) {
 
 
 	delete A;
-	delete B;
+	//delete B;
 	//delete C;
 
 }
@@ -28,13 +28,13 @@ void Renderer::UpdateScene(float msec) {
 
 }
 
-void Renderer::RenderScene(bool flag) {
+void Renderer::RenderScene(int flag) {
 
 	if (flag == 1) {
 		A->RenderScene();
 	}
 	else if (flag == 2) {
-		B->RenderScene();
+		//B->RenderScene();
 	}
 	else if (flag == 3) {
 		//C->RenderScene();
@@ -50,9 +50,9 @@ bool Renderer::HasInitialised() {
 	if (!A->HasInitialised()) {
 		return false;
 	}
-	if (!B->HasInitialised()) {
-		return false;
-	}
+	//if (!B->HasInitialised()) {
+//		return false;
+//	}
 	//if (!C.HasInitialised()) {
 	//	return false;
 	//}
