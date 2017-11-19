@@ -5,7 +5,7 @@
 Renderer::Renderer(Window & parent) {
 
 	A = new SceneA(parent);
-	//B = new SceneB(parent);
+	B = new SceneB(parent);
 	//C = SceneC(parent);
 
 }

@@ -1,11 +1,14 @@
 #pragma comment(lib, "nclgl.lib")
 
 #include "../../NCLGL/window.h"
+
 #include "Renderer.h"
+
 
 
 int main() {
 	Window w("My coursework project", 1280, 720, false); //This is all boring win32 window creation stuff!
+
 	if (!w.HasInitialised()) {
 		return -1;
 	}

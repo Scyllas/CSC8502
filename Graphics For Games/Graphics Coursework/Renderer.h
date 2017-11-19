@@ -21,9 +21,10 @@ public:
 
 protected:
 	
+
 	// Make a new texture ...
 	
 	SceneA * A;
-	//SceneB * B;
+	SceneB * B;
 	//SceneC C;
 };
