@@ -9,8 +9,8 @@
 #include "TextMesh.h"
 #include "SharedFunctions.h"
 
-class SceneC : public OGLRenderer
-{
+class SceneC : public OGLRenderer {
+
 public:
 	SceneC(Window & parent);
 	~SceneC() {};

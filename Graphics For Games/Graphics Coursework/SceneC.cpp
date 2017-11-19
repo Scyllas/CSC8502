@@ -2,6 +2,7 @@
 
 
 SceneC::SceneC(Window & parent) : OGLRenderer(parent)
+
 {
 
 	camera = new Camera(0.0f, 0.0f,

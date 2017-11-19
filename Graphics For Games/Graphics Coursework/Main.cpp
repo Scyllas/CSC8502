@@ -13,7 +13,7 @@ int main() {
 		return -1;
 	}
 
-	int flag = 1;
+	int flag = 2;
 	srand((unsigned int)(w.GetTimer()->GetMS() * 1000.0f));
 
 	Renderer renderer(w); //This handles all the boring OGL 3.2 initialisation stuff, and sets up our tutorial!

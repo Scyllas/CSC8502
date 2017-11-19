@@ -4,78 +4,56 @@ SceneB::SceneB(Window & parent) : OGLRenderer(parent)
 {
 
 
-	camera = new Camera(0.0f, 0.0f,
-		Vector3(RAW_WIDTH * HEIGHTMAP_X / 2.0f, 500, RAW_WIDTH * HEIGHTMAP_X));
+	camera = new Camera();
+	camera -> SetPosition(Vector3(RAW_WIDTH * HEIGHTMAP_X / 2.0f,
+		500.0f, RAW_WIDTH * HEIGHTMAP_X));
+	wall = Mesh::GenerateQuad();
 
 
-
-
-
+	wall->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"Barren Reds.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
 
 	basicFont = new Font(SOIL_load_OGL_texture(TEXTUREDIR"tahoma.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_COMPRESS_TO_DXT), 16, 16);
-	heightMap = new HeightMap(TEXTUREDIR"terrain.raw");
-	heightMap->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"grass.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
-	heightMap->SetBumpMap(SOIL_load_OGL_texture(TEXTUREDIR"grassBump.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
+	//heightMap = new HeightMap(TEXTUREDIR"terrain.raw");
+//	heightMap->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"grass.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
+//	heightMap->SetBumpMap(SOIL_load_OGL_texture(TEXTUREDIR"grassBump.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
 
 
-	SetTextureRepeating(heightMap->GetTexture(), true);
-	SetTextureRepeating(heightMap->GetBumpMap(), true);
+	//SetTextureRepeating(heightMap->GetTexture(), true);
+//	SetTextureRepeating(heightMap->GetBumpMap(), true);
 
 
+	wallShader = new Shader(SHADERDIR"basicVertex.glsl", SHADERDIR"TexturedFragment.glsl");
+	if (!wallShader->LinkProgram()) {
+		return;
+	}
 	textShader = new Shader(SHADERDIR"TextVertex.glsl", SHADERDIR"TextFragment.glsl");
 	if (!textShader->LinkProgram()) {
 		return;
 	}
 	
-	glGenFramebuffers(1, &bufferFBO);
-	glGenFramebuffers(1, &pointLightFBO);
+	//SetTextureRepeating(wall -> GetTexture(), true);
+	glClearColor(1.0f, 0.6f, 0.7f, 1);
 
-	GLenum buffers[2];
-	buffers[0] = GL_COLOR_ATTACHMENT0;
-	buffers[1] = GL_COLOR_ATTACHMENT1;
+	projMatrix = Matrix4::Perspective(1.0f, 15000.0f,
+		(float)width / (float)height, 45.0f);
 
-	//Generate our scene depth texture...
-	GenerateScreenTexture(bufferDepthTex, true);
-	GenerateScreenTexture(bufferColourTex);
-	GenerateScreenTexture(bufferNormalTex);
-	GenerateScreenTexture(lightEmissiveTex);
-	GenerateScreenTexture(lightSpecularTex);
-	//And now attach them to our FBOs
-	glBindFramebuffer(GL_FRAMEBUFFER, bufferFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bufferColourTex, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, bufferNormalTex, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, bufferDepthTex, 0);
-	glDrawBuffers(2, buffers);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) !=
-		GL_FRAMEBUFFER_COMPLETE) {
-		return;
-
-	}
-	glBindFramebuffer(GL_FRAMEBUFFER, pointLightFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-		GL_TEXTURE_2D, lightEmissiveTex, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1,
-		GL_TEXTURE_2D, lightSpecularTex, 0);
-	glDrawBuffers(2, buffers);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) !=
-		GL_FRAMEBUFFER_COMPLETE) {
-		return;
-
-	}
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	init = true;
 }
 
 void SceneB::destroy()
 {
+	delete camera;
+	delete wall;
+	delete heightMap;
+
+	delete wallShader;
+	delete textShader;
+
+	currentShader = 0;
 }
 
 void SceneB::UpdateScene(float msec)
@@ -87,18 +65,50 @@ void SceneB::UpdateScene(float msec)
 
 void SceneB::RenderScene()
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-	projMatrix = Matrix4::Perspective(1.0f, 10000.0f,
-		(float)width / (float)height, 45.0f);
-	modelMatrix.ToIdentity();
+	//projMatrix = Matrix4::Perspective(1.0f, 10000.0f,
+	//	(float)width / (float)height, 45.0f);
 
 
-
+GenerateWalls();
+	
 
 	GenerateText();
 	SwapBuffers();
+}
+
+void SceneB::GenerateWalls()
+{
+
+	SetCurrentShader(wallShader);
+
+	UpdateShaderMatrices();
+
+	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "diffuseTex"), 0);
+	wall->Draw();
+
+	glUseProgram(0);
+
+}
+
+
+
+void SceneB::GenerateText() {
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	glDisable(GL_DEPTH_TEST);
+	
+	SetCurrentShader(textShader);
+	glUseProgram(currentShader->GetProgram());	//Enable the shader...
+												//And turn on texture unit 0
+	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "diffuseTex"), 0);
+
+	//Render function to encapsulate our font rendering!
+	DrawText(getFPS(), Vector3(0, 0, 0), 16.0f);
+
+	glUseProgram(0);	//That's everything!
+	glEnable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void SceneB::GenerateScreenTexture(GLuint & into, bool depth)
@@ -122,21 +132,6 @@ void SceneB::GenerateScreenTexture(GLuint & into, bool depth)
 
 }
 
-void SceneB::GenerateText() {
-	glDisable(GL_DEPTH_TEST);
-	//glDisable(GL_CULL_FACE);
-	SetCurrentShader(textShader);
-	glUseProgram(currentShader->GetProgram());	//Enable the shader...
-												//And turn on texture unit 0
-	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "diffuseTex"), 0);
-
-	//Render function to encapsulate our font rendering!
-	DrawText(getFPS(), Vector3(0, 0, 0), 16.0f);
-
-	glUseProgram(0);	//That's everything!
-	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
-}
 
 void SceneB::DrawText(const std::string &text, const Vector3 &position, const float size, const bool perspective) {
 	//Create a new temporary TextMesh, using our line of text and our font

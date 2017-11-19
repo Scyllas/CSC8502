@@ -24,7 +24,9 @@ protected:
 
 	// Make a new texture ...
 	
-	SceneA * A;
+//	SceneA * A;
 	SceneB * B;
-	//SceneC C;
+//	SceneC * C;
+
+	int m_flag;
 };
