@@ -9,6 +9,8 @@
 #include "TextMesh.h"
 #include "SharedFunctions.h"
 
+#include <vector>
+
 class SceneB : public OGLRenderer {
 
 public:
@@ -22,16 +24,28 @@ public:
 
 	void GenerateWalls();
 
+	void GenerateScenery();
+
 	void GenerateScreenTexture(GLuint & into, bool depth = false);
 	void GenerateText();
 	void DrawText(const std::string &text, const Vector3 &position, const float size = 10.0f, const bool perspective = false);
 protected:
 
+	bool repeating;
+
+	//OBJMesh pillar;
+	//OBJMesh column;
+	//OBJMesh torch;
 
 	Shader * textShader;
 	Shader * wallShader;
+	Shader * lightShader;
 
-	Mesh * wall;
+	const int lightNum = 2;
+	Light * lights;
+
+	GLuint cubeMap;
+	vector<Mesh*> walls;
 	Mesh * heightMap; // Terrain !
 
 	Font*	basicFont;	//A font! a basic one...

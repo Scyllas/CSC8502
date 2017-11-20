@@ -256,6 +256,20 @@ void OGLRenderer::SetShaderLight(const Light &l) {
 	glUniform4fv(glGetUniformLocation(currentShader->GetProgram(), "lightColour"), 1, (float*)&l.GetColour());
 	glUniform1f(glGetUniformLocation(currentShader->GetProgram(), "lightRadius"), l.GetRadius());
 }
+void OGLRenderer::SetShaderLights(const Light *l, const int length) {
+
+
+	for (int i = 0; i < length; i++) {
+		Scene2lPos[i] = &l->GetPosition();
+		Scene2lCol[i] = &l->GetColour();
+		Scene2lRad[i] = l->GetRadius();
+	}
+	 
+	glUniform3fv(glGetUniformLocation(currentShader->GetProgram(), "lightPos"), 1, (float*)&Scene2lPos);
+	glUniform4fv(glGetUniformLocation(currentShader->GetProgram(), "lightColour"), 1, (float*)&Scene2lCol);
+	glUniform1f(glGetUniformLocation(currentShader->GetProgram(), "lightRadius"), *Scene2lRad);
+
+}
 
 #ifdef OPENGL_DEBUGGING
 void OGLRenderer::DebugCallback(GLuint source, GLuint type, GLuint id, GLuint severity,

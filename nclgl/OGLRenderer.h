@@ -121,6 +121,13 @@ public:
 	}
 
 protected:
+
+	static const int Scene2LightNum = 2;
+
+	Vector3* Scene2lPos[Scene2LightNum];
+	Vector4* Scene2lCol[Scene2LightNum];
+	float Scene2lRad[Scene2LightNum];
+
 	virtual void	Resize(int x, int y);	
 	void			UpdateShaderMatrices();
 	void			SetCurrentShader(Shader*s);
@@ -128,6 +135,11 @@ protected:
 	void			SetTextureRepeating(GLuint target, bool state);
 
 	void			SetShaderLight(const Light &l);
+
+	void			SetShaderLights(const Light * l, const int length);
+
+
+
 
 	void			DrawDebugPerspective(Matrix4*matrix = 0);
 	void			DrawDebugOrtho(Matrix4*matrix = 0);

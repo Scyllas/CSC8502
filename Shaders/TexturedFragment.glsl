@@ -10,4 +10,5 @@
 
  void main ( void ) {
  gl_FragColor = texture ( diffuseTex , IN . texCoord );
+ //gl_FragColor.xy = IN.texCoord;
  }

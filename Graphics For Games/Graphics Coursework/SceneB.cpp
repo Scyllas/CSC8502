@@ -5,23 +5,39 @@ SceneB::SceneB(Window & parent) : OGLRenderer(parent)
 
 
 	camera = new Camera();
-	camera -> SetPosition(Vector3(RAW_WIDTH * HEIGHTMAP_X / 2.0f,
-		500.0f, RAW_WIDTH * HEIGHTMAP_X));
-	wall = Mesh::GenerateQuad();
+	camera->SetPosition(Vector3(0, 0, 100));
+	walls.push_back(Mesh::GenerateQuad(1000.0f, 500.0f));
+	walls.push_back(Mesh::GenerateQuad(1000.0f, 500.0f));
+	walls.push_back(Mesh::GenerateQuad(1000.0f, 500.0f));
+	walls.push_back(Mesh::GenerateQuad(250.0f, 500.0f));
+	walls.push_back(Mesh::GenerateQuad(250.0f, 500.0f));
+	walls.push_back(Mesh::GenerateQuad(1000.0f, 1000.0f));
+	walls.push_back(Mesh::GenerateQuad(1000.0f, 1000.0f));
+	walls.push_back(Mesh::GenerateQuad(2000.0f, 500.0f));
+	walls.push_back(Mesh::GenerateQuad(2000.0f, 500.0f));
+	walls.push_back(Mesh::GenerateQuad(500.0f, 2000.0f));
+	walls.push_back(Mesh::GenerateQuad(500.0f, 2000.0f));
 
 
-	wall->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"Barren Reds.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
+	lights = new Light[lightNum];
+	lights[1] = Light(Vector3(0, -250.0f, -2200.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f), 50000.0f);
+	lights[2] = Light(Vector3(0, 250.0f, -2200.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f), 50000.0f);
+
+
+	//pillar = OBJMesh(MESHDIR"simple_pillar.obj");
+	//column = OBJMesh(MESHDIR"Column_Made_By_Tyro_Smith.obj");
+	//torch = OBJMesh(MESHDIR"walltorch.obj");
+
+	for (Mesh* it : walls) {
+		it->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"mossyBrick.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
+		SetTextureRepeating(it->GetTexture(), true);
+	}
 
 	basicFont = new Font(SOIL_load_OGL_texture(TEXTUREDIR"tahoma.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_COMPRESS_TO_DXT), 16, 16);
-	//heightMap = new HeightMap(TEXTUREDIR"terrain.raw");
-//	heightMap->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"grass.JPG", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
-//	heightMap->SetBumpMap(SOIL_load_OGL_texture(TEXTUREDIR"grassBump.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
 
-
-	//SetTextureRepeating(heightMap->GetTexture(), true);
-//	SetTextureRepeating(heightMap->GetBumpMap(), true);
-
-
+	if (!cubeMap) {
+		return;
+	}
 	wallShader = new Shader(SHADERDIR"basicVertex.glsl", SHADERDIR"TexturedFragment.glsl");
 	if (!wallShader->LinkProgram()) {
 		return;
@@ -30,9 +46,11 @@ SceneB::SceneB(Window & parent) : OGLRenderer(parent)
 	if (!textShader->LinkProgram()) {
 		return;
 	}
-	
-	//SetTextureRepeating(wall -> GetTexture(), true);
-	glClearColor(1.0f, 0.6f, 0.7f, 1);
+	lightShader = new Shader(SHADERDIR"PerPixelVert.glsl", SHADERDIR"PerPixelFragment.glsl");
+	if (!lightShader->LinkProgram()) {
+		return;
+	}
+	glClearColor(0.0f, 0.0f, 0.0f, 1);
 
 	projMatrix = Matrix4::Perspective(1.0f, 15000.0f,
 		(float)width / (float)height, 45.0f);
@@ -41,17 +59,24 @@ SceneB::SceneB(Window & parent) : OGLRenderer(parent)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	repeating = false;
+
+
 	init = true;
 }
 
 void SceneB::destroy()
 {
+
+	walls.clear();
+
+	delete lights;
 	delete camera;
-	delete wall;
 	delete heightMap;
 
 	delete wallShader;
 	delete textShader;
+	delete lightShader;
 
 	currentShader = 0;
 }
@@ -67,12 +92,11 @@ void SceneB::RenderScene()
 {
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-	//projMatrix = Matrix4::Perspective(1.0f, 10000.0f,
-	//	(float)width / (float)height, 45.0f);
+	projMatrix = Matrix4::Perspective(1.0f, 15000.0f,
+		(float)width / (float)height, 45.0f);
 
-
-GenerateWalls();
-	
+	GenerateWalls();
+	GenerateScenery();
 
 	GenerateText();
 	SwapBuffers();
@@ -81,23 +105,132 @@ GenerateWalls();
 void SceneB::GenerateWalls()
 {
 
-	SetCurrentShader(wallShader);
+	modelMatrix.ToIdentity();
+
+	SetCurrentShader(lightShader);
+	
+
+	repeating = true;
+
+	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "diffuseTex"), 0);
+
+	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "bumpTex"), 1);
+
+	glUniform3fv(glGetUniformLocation(currentShader->GetProgram(), "cameraPos"), 1, (float *)& camera->GetPosition());
 
 	UpdateShaderMatrices();
+	SetShaderLights(lights, lightNum);
 
-	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "diffuseTex"), 0);
-	wall->Draw();
+	vector<Mesh*>::iterator it = walls.begin();
+	modelMatrix =//back face
+		Matrix4::Translation(Vector3(0.0f, 0.0f, -2500.0f))*
+		Matrix4::Rotation(0, Vector3(0.0f, 0.0f, 0.0f));
+	UpdateShaderMatrices();
+	(*it)->Draw();
+	it++;
 
+	modelMatrix =//left face
+		Matrix4::Translation(Vector3(-500.0f, 0.0f, -2000.0f))*
+		Matrix4::Rotation(90, Vector3(0.0f, 1.0f, 0.0f));
+	UpdateShaderMatrices();
+	(*it)->Draw();
+	it++;
+
+	modelMatrix =//right face
+		Matrix4::Translation(Vector3(500.0f, 0.0f, -2000.0f))*
+		Matrix4::Rotation(90, Vector3(0.0f, -1.0f, 0.0f));
+	UpdateShaderMatrices();
+	(*it)->Draw();
+	it++;
+
+	modelMatrix =//front face left
+		Matrix4::Translation(Vector3(-375.0f, 0.0f, -1500.0f))*
+		Matrix4::Rotation(180, Vector3(0.0f, 1.0f, 0.0f));
+	UpdateShaderMatrices();
+	(*it)->Draw();
+	it++;
+
+	modelMatrix =//front face right
+		Matrix4::Translation(Vector3(375.0f, 0.0f, -1500.0f))*
+		Matrix4::Rotation(180, Vector3(0.0f, 1.0f, 0.0f));
+	UpdateShaderMatrices();
+	(*it)->Draw();
+	it++;
+
+	modelMatrix =//top face
+		Matrix4::Translation(Vector3(0.0f, 250.0f, -2000.0f))*
+		Matrix4::Rotation(90, Vector3(1.0f, 0.0f, 0.0f));
+	UpdateShaderMatrices();
+	(*it)->Draw();
+	it++;
+
+	modelMatrix =//bottom face
+		Matrix4::Translation(Vector3(0.0f, -250.0f, -2000.0f))*
+		Matrix4::Rotation(90, Vector3(-1.0f, 0.0f, 0.0f));
+	UpdateShaderMatrices();
+	(*it)->Draw();
+	it++;
+	modelMatrix =//hallway left
+		Matrix4::Translation(Vector3(-250.0f, 0.0f, -500.0f))*
+		Matrix4::Rotation(90, Vector3(0.0f, -1.0f, 0.0f));
+	UpdateShaderMatrices();
+	(*it)->Draw();
+	it++;
+	modelMatrix =//hallway right
+		Matrix4::Translation(Vector3(250.0f, 0.0f, -500.0f))*
+		Matrix4::Rotation(90, Vector3(0.0f, 1.0f, 0.0f));
+	UpdateShaderMatrices();
+	(*it)->Draw();
+	it++;
+	modelMatrix =//top hall
+		Matrix4::Translation(Vector3(0.0f, 250.0f, -500.0f))*
+		Matrix4::Rotation(90, Vector3(1.0f, 0.0f, 0.0f));
+	UpdateShaderMatrices();
+	(*it)->Draw();
+	it++;
+
+	modelMatrix =//bottom hall
+		Matrix4::Translation(Vector3(0.0f, -250.0f, -500.0f))*
+		Matrix4::Rotation(90, Vector3(-1.0f, 0.0f, 0.0f));
+	UpdateShaderMatrices();
+	(*it)->Draw();
+	it++;
+
+
+	UpdateShaderMatrices();
+	repeating = false;
+	modelMatrix.ToIdentity();
 	glUseProgram(0);
 
 }
 
+void SceneB::GenerateScenery()
+{
+	modelMatrix.ToIdentity();
 
+	SetCurrentShader(wallShader);
+
+
+
+	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "diffuseTex"), 0);
+
+	modelMatrix =//hallway left
+		Matrix4::Translation(Vector3(-250.0f, 0.0f, -500.0f))*
+		Matrix4::Rotation(90, Vector3(0.0f, -1.0f, 0.0f))*
+		Matrix4::Scale(Vector3(1000.0f, 1000.0f, 1000.0f));
+	UpdateShaderMatrices();
+
+	//pillar.Draw();
+	//column.Draw();
+	//torch.Draw();
+
+	glUseProgram(0);
+}
 
 void SceneB::GenerateText() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	glDisable(GL_DEPTH_TEST);
-	
+
 	SetCurrentShader(textShader);
 	glUseProgram(currentShader->GetProgram());	//Enable the shader...
 												//And turn on texture unit 0

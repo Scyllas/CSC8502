@@ -19,6 +19,8 @@ public:
 	static Mesh * GenerateTriangle();
 	static Mesh * GenerateQuad();
 
+	static Mesh * GenerateQuad(float width, float height);
+
 
 	void SetTexture(GLuint tex) { texture = tex; }
 	GLuint GetTexture() { return texture; }
