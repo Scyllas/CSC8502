@@ -124,8 +124,8 @@ protected:
 
 	static const int Scene2LightNum = 2;
 
-	Vector3* Scene2lPos[Scene2LightNum];
-	Vector4* Scene2lCol[Scene2LightNum];
+	Vector3 Scene2lPos[Scene2LightNum];
+	Vector4 Scene2lCol[Scene2LightNum];
 	float Scene2lRad[Scene2LightNum];
 
 	virtual void	Resize(int x, int y);	

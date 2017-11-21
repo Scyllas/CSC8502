@@ -260,14 +260,20 @@ void OGLRenderer::SetShaderLights(const Light *l, const int length) {
 
 
 	for (int i = 0; i < length; i++) {
-		Scene2lPos[i] = &l->GetPosition();
-		Scene2lCol[i] = &l->GetColour();
+		Scene2lPos[i] = l->GetPosition();
+		Scene2lCol[i] = l->GetColour();
 		Scene2lRad[i] = l->GetRadius();
 	}
+
+	int testpos = glGetUniformLocation(currentShader->GetProgram(), "lightPos");
+	int testcol = glGetUniformLocation(currentShader->GetProgram(), "lightColour");
+	int testrad = glGetUniformLocation(currentShader->GetProgram(), "lightRadius");
+
 	 
-	glUniform3fv(glGetUniformLocation(currentShader->GetProgram(), "lightPos"), 1, (float*)&Scene2lPos);
-	glUniform4fv(glGetUniformLocation(currentShader->GetProgram(), "lightColour"), 1, (float*)&Scene2lCol);
-	glUniform1f(glGetUniformLocation(currentShader->GetProgram(), "lightRadius"), *Scene2lRad);
+	glUniform3fv(glGetUniformLocation(currentShader->GetProgram(), "lightPos"), length, (float*)&Scene2lPos);
+	glUniform4fv(glGetUniformLocation(currentShader->GetProgram(), "lightColour"), length, (float*)&Scene2lCol);
+	glUniform1fv(glGetUniformLocation(currentShader->GetProgram(), "lightRadius"), length, (float*)&Scene2lRad);
+	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "lightNum"), length);
 
 }
 

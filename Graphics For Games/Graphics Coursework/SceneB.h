@@ -5,6 +5,7 @@
 #include "../nclgl/OBJmesh.h"
 #include "../nclgl/heightmap.h"
 #include "../nclgl/light.h"
+#include "../nclgl/ParticleEmitter.h"
 
 #include "TextMesh.h"
 #include "SharedFunctions.h"
@@ -26,6 +27,8 @@ public:
 
 	void GenerateScenery();
 
+	void GenerateParticles();
+
 	void GenerateScreenTexture(GLuint & into, bool depth = false);
 	void GenerateText();
 	void DrawText(const std::string &text, const Vector3 &position, const float size = 10.0f, const bool perspective = false);
@@ -33,11 +36,14 @@ protected:
 
 	bool repeating;
 
-	//OBJMesh pillar;
+	ParticleEmitter* torch1Particles;
+
+	OBJMesh pillar;
 	//OBJMesh column;
 	//OBJMesh torch;
 
 	Shader * textShader;
+	Shader * particleShader;
 	Shader * wallShader;
 	Shader * lightShader;
 
@@ -46,7 +52,6 @@ protected:
 
 	GLuint cubeMap;
 	vector<Mesh*> walls;
-	Mesh * heightMap; // Terrain !
 
 	Font*	basicFont;	//A font! a basic one...
 
