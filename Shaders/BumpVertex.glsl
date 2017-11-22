@@ -33,6 +33,5 @@ void main ( void ) {
 
 	OUT.worldPos = ( modelMatrix * vec4 ( position ,1)). xyz ;
 
-	gl_Position = ( projMatrix * viewMatrix * modelMatrix ) *
-	vec4 ( position , 1.0);
+	gl_Position = ( projMatrix * viewMatrix * modelMatrix ) * vec4 ( position , 1.0);
  }

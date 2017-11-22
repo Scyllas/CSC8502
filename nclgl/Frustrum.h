@@ -11,7 +11,7 @@ public:
 	~Frustrum(void) {};
 
 	void FromMatrix(const Matrix4 & mvp);
-	bool InsideFrustum(SceneNode & n);
+	bool InsideFrustrum(SceneNode & n);
 protected:
 	Plane planes[6];
 

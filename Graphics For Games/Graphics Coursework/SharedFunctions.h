@@ -8,9 +8,10 @@ static const int msecArraySize = 600;
 static int msecArrayLength = 0;
 static int msecArrayLocation = 0;
 static float msecArray[msecArraySize];
+static float msecStored = 0;
 
 static void storeMsec(float msec) {
-
+	msecStored = msec;
 	msecArrayLocation %= msecArraySize;
 	msecArray[msecArrayLocation] = msec;
 	msecArrayLocation++;

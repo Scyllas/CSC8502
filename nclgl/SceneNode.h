@@ -22,11 +22,14 @@ public:
 
 	Mesh * GetMesh() const { return mesh; }
 	void SetMesh(Mesh * m) { mesh = m; }
+	
+	Shader * GetOverrideShader() const { return overrideShader; }
+	void SetOverrideShader(Shader * s) { overrideShader = s; }
 
 	void AddChild(SceneNode * s);
 
 	virtual void Update(float msec);
-	virtual void Draw(const OGLRenderer & r);
+	virtual void Draw();
 
 	 float GetBoundingRadius() const { return boundingRadius; }
 	 void SetBoundingRadius(float f) { boundingRadius = f; }
@@ -56,6 +59,8 @@ protected:
 	Vector3 modelScale;
 	Vector4 colour;
 	std::vector < SceneNode * > children;
+
+	Shader * overrideShader;
 
 	float distanceFromCamera;
 	float boundingRadius;

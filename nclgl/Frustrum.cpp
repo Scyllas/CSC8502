@@ -1,5 +1,5 @@
 #include "Frustrum.h"
-bool Frustrum::InsideFrustum(SceneNode & n) {
+bool Frustrum::InsideFrustrum(SceneNode & n) {
 	for (int p = 0; p < 6; ++p) {
 		if (!planes[p].SphereInPlane(n.GetWorldTransform().
 			GetPositionVector(), n.GetBoundingRadius())) {

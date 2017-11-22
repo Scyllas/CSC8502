@@ -20,12 +20,13 @@ void main ( void ) {
 	OUT . colour = colour ;
 	OUT . texCoord = ( textureMatrix * vec4 ( texCoord , 0.0 , 1.0)). xy ;
 
-	mat3 normalMatrix = transpose ( inverse ( mat3 ( modelMatrix )));
+	mat3 normalMatrix = inverse (  transpose ( mat3 ( modelMatrix )));
 
 	OUT . normal = normalize ( normalMatrix * normalize ( normal ));
 
 
 	OUT . worldPos = ( modelMatrix * vec4 ( position ,1)). xyz ;
-	gl_Position = ( projMatrix * viewMatrix * modelMatrix ) *
-	vec4 ( position , 1.0);
+	gl_Position = ( projMatrix * viewMatrix * modelMatrix ) * vec4 ( position , 1.0);
+ 
+ //OUT . normal = -normal;
  }

@@ -7,11 +7,13 @@
 #include "../nclgl/light.h"
 #include "../nclgl/ParticleEmitter.h"
 #include "../nclgl/MD5Node.h"
+#include "../nclgl/Frustrum.h"
 
 #include "TextMesh.h"
 #include "SharedFunctions.h"
 
 #include <vector>
+#include <algorithm>
 
 class SceneB : public OGLRenderer {
 
@@ -22,9 +24,21 @@ public:
 	void destroy();
 
 	void UpdateScene(float msec);
+	void BuildNodeLists(SceneNode * from);
+	void SortNodeLists();
 	void RenderScene();
 
-	void GenerateWalls();
+	void PassShaderUniforms();
+
+	void DrawObjects();
+
+	void ClearNodeLists();
+
+	void DrawNodes();
+
+	void DrawNode(SceneNode * n);
+
+
 
 	void GenerateScenery();
 
@@ -37,7 +51,6 @@ public:
 	void DrawText(const std::string &text, const Vector3 &position, const float size = 10.0f, const bool perspective = false);
 protected:
 
-	bool repeating;
 
 	ParticleEmitter* torch1Particles;
 
@@ -58,10 +71,14 @@ protected:
 	Light * lights;
 
 	GLuint cubeMap;
-	vector<Mesh*> walls;
+	Mesh * wall;
+	//vector<Mesh*> walls;
 
 	Font*	basicFont;	//A font! a basic one...
 
 	Camera * camera; // Our usual camera
+
+	SceneNode * root;	SceneNode * wallRoot;	Frustrum frameFrustrum;	vector <SceneNode*> transparentNodeList;
+	vector <SceneNode*> nodeList;
 };
 
