@@ -6,6 +6,7 @@
 #include "../nclgl/heightmap.h"
 #include "../nclgl/light.h"
 #include "../nclgl/ParticleEmitter.h"
+#include "../nclgl/MD5Node.h"
 
 #include "TextMesh.h"
 #include "SharedFunctions.h"
@@ -29,6 +30,8 @@ public:
 
 	void GenerateParticles();
 
+	void GenerateHellKnight();
+
 	void GenerateScreenTexture(GLuint & into, bool depth = false);
 	void GenerateText();
 	void DrawText(const std::string &text, const Vector3 &position, const float size = 10.0f, const bool perspective = false);
@@ -38,14 +41,18 @@ protected:
 
 	ParticleEmitter* torch1Particles;
 
-	OBJMesh pillar;
-	//OBJMesh column;
+	//OBJMesh pillar;
+	OBJMesh column;
 	//OBJMesh torch;
 
 	Shader * textShader;
 	Shader * particleShader;
 	Shader * wallShader;
 	Shader * lightShader;
+	Shader * hellKnightShader;
+
+	MD5FileData * hellData;
+	MD5Node * hellNode;
 
 	const int lightNum = 2;
 	Light * lights;

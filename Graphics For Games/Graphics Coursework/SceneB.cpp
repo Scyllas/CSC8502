@@ -18,7 +18,11 @@ SceneB::SceneB(Window & parent) : OGLRenderer(parent)
 	walls.push_back(Mesh::GenerateQuad(500.0f, 2000.0f));
 	walls.push_back(Mesh::GenerateQuad(500.0f, 2000.0f));
 
+	hellData = new MD5FileData(MESHDIR"hellknight.md5mesh");
+	hellNode = new MD5Node(*hellData);
 
+	hellData->AddAnim(MESHDIR"idle2.md5anim");
+	hellNode->PlayAnim(MESHDIR"idle2.md5anim");
 
 	lights = new Light[lightNum];
 	lights[0] = Light(Vector3(0, 0.0f, 0.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f), 5000.0f);
@@ -27,7 +31,7 @@ SceneB::SceneB(Window & parent) : OGLRenderer(parent)
 	torch1Particles = new ParticleEmitter();
 
 	//pillar = OBJMesh(MESHDIR"simple_pillar.obj");
-	//column = OBJMesh(MESHDIR"Column_Made_By_Tyro_Smith.obj");
+	column = OBJMesh(MESHDIR"Column.obj");
 	//torch = OBJMesh(MESHDIR"walltorch.obj");
 
 	for (Mesh* it : walls) {
@@ -57,6 +61,10 @@ SceneB::SceneB(Window & parent) : OGLRenderer(parent)
 	if (!particleShader->LinkProgram()) {
 		return;
 	}
+	hellKnightShader = new Shader(SHADERDIR"texturedVertex.glsl", SHADERDIR"texturedFragment.glsl");
+	if (!hellKnightShader->LinkProgram()) {
+		return;
+	}
 	glClearColor(0.0f, 0.0f, 0.0f, 1);
 
 	projMatrix = Matrix4::Perspective(1.0f, 15000.0f,
@@ -78,6 +86,9 @@ void SceneB::destroy()
 
 	walls.clear();
 
+	delete hellData;
+	delete hellNode;
+
 	delete lights;
 	delete camera;
 
@@ -95,6 +106,7 @@ void SceneB::UpdateScene(float msec)
 	camera->UpdateCamera(msec);
 	viewMatrix = camera->BuildViewMatrix();
 	torch1Particles->Update(msec);
+	hellNode->Update(msec);
 }
 
 void SceneB::RenderScene()
@@ -105,10 +117,10 @@ void SceneB::RenderScene()
 		(float)width / (float)height, 45.0f);
 
 	GenerateWalls();
-	//GenerateScenery();
+	GenerateScenery();
 	GenerateParticles();
 
-	//	GenerateText();
+	GenerateText();
 	SwapBuffers();
 }
 
@@ -229,9 +241,9 @@ void SceneB::GenerateScenery()
 		Matrix4::Scale(Vector3(1000.0f, 1000.0f, 1000.0f));
 	UpdateShaderMatrices();
 
-	pillar.Draw();
+	//pillar.Draw();
 
-	//column.Draw();
+	column.Draw();
 	//torch.Draw();
 
 	modelMatrix.ToIdentity();
@@ -240,27 +252,46 @@ void SceneB::GenerateScenery()
 
 void SceneB::GenerateParticles() {
 
-
+	glDepthMask(GL_FALSE);
 	SetCurrentShader(particleShader);
 
-	modelMatrix = Matrix4::Translation(Vector3(0.0f, 0.0f, -500.0f));
+	modelMatrix =
+		Matrix4::Translation(Vector3(450.0f, 125.0f, -2000.0f));
 
 	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "diffuseTex"), 0);
 
-	torch1Particles->SetParticleSize(40.0f);
-	torch1Particles->SetParticleVariance(1.0f);
+	torch1Particles->SetParticleRate(50.0f);
+	torch1Particles->SetDirection(Vector3(-0.2f, 1.0f, 0));
+	torch1Particles->SetParticleSize(10.0f);
+	torch1Particles->SetParticleVariance(0.5f);
 	torch1Particles->SetLaunchParticles(16.0f);
 	torch1Particles->SetParticleLifetime(2000.0f);
-	torch1Particles->SetParticleSpeed(0.1f);
+	torch1Particles->SetParticleSpeed(0.05f);
+	torch1Particles->SetinitialColour(Vector3(1.0f, 0, 0));
 
 	glUniform1f(glGetUniformLocation(currentShader->GetProgram(), "particleSize"), torch1Particles->GetParticleSize());
 
+
 	UpdateShaderMatrices();
+
 
 	torch1Particles->Draw();
 
+	glDepthMask(GL_TRUE);
 	modelMatrix.ToIdentity();
 	glUseProgram(0);
+}
+
+void SceneB::GenerateHellKnight()
+{
+
+	SetCurrentShader(hellKnightShader);
+
+	glUniform1i(glGetUniformLocation(currentShader->GetProgram(), "diffuseTex"), 0);
+
+	UpdateShaderMatrices();
+
+	hellNode->Draw(*this);	glUseProgram(0);
 }
 
 void SceneB::GenerateText() {

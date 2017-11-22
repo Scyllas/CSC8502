@@ -108,8 +108,11 @@ public:
 	/*
 	Launch direction of the particles
 	*/
-	void	SetDirection(const Vector3 dir) {initialDirection = dir;}
-	Vector3 GetDirection()					{return initialDirection;}
+	void	SetDirection(const Vector3 dir) { initialDirection = dir; }
+	Vector3 GetDirection() { return initialDirection; }
+
+	void	SetinitialColour(const Vector3 col) { initialColour = col; }
+	Vector3 GetinitialColour() { return initialColour; }
 
 protected:
 	/*
@@ -131,6 +134,7 @@ protected:
 	int	  numLaunchParticles;
 
 	Vector3 initialDirection;
+	Vector3 initialColour;
 
 	float nextParticleTime;		//How long until we next spit out some particles?
 
