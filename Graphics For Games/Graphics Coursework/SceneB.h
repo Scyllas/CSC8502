@@ -38,10 +38,14 @@ public:
 
 	void DrawNode(SceneNode * n);
 
+
+
+	void GenerateScenery();
+
 	void GenerateParticles();
 
-	void UpdateHellKnight();
-	
+	void GenerateHellKnight();
+
 	void GenerateScreenTexture(GLuint & into, bool depth = false);
 	void GenerateText();
 	void DrawText(const std::string &text, const Vector3 &position, const float size = 10.0f, const bool perspective = false);
@@ -51,7 +55,7 @@ protected:
 	ParticleEmitter* torch1Particles;
 
 	//OBJMesh pillar;
-	OBJMesh * column;
+	OBJMesh column;
 	//OBJMesh torch;
 
 	Shader * textShader;
@@ -66,8 +70,9 @@ protected:
 	const int lightNum = 2;
 	Light * lights;
 
-
+	GLuint cubeMap;
 	Mesh * wall;
+	//vector<Mesh*> walls;
 
 	Font*	basicFont;	//A font! a basic one...
 
@@ -75,7 +80,5 @@ protected:
 
 	SceneNode * root;	SceneNode * wallRoot;	Frustrum frameFrustrum;	vector <SceneNode*> transparentNodeList;
 	vector <SceneNode*> nodeList;
-	float hellKnightPos = 0.0f;
-	bool hellKnightDirection = true;
 };
 
