@@ -7,7 +7,7 @@
 
 
 int main() {
-	Window w("My coursework project", 1920, 1080, true); //This is all boring win32 window creation stuff!
+	Window w("My coursework project", 1600, 900, false); //This is all boring win32 window creation stuff!
 
 	if (!w.HasInitialised()) {
 		return -1;
