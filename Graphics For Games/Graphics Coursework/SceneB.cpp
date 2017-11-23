@@ -10,12 +10,20 @@ SceneB::SceneB(Window & parent) : OGLRenderer(parent)
 	Vector2 tempSize[11];
 	Matrix4 tempModel[11];
 
+	column =  new OBJMesh(MESHDIR"Column.obj");
+	hellData = new MD5FileData(MESHDIR"hellknight.md5mesh");
+	hellNode = new MD5Node(*hellData);
+
+	torch1Particles = new ParticleEmitter();
+	lights = new Light[lightNum];
+
+	basicFont = new Font(SOIL_load_OGL_texture(TEXTUREDIR"tahoma.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_COMPRESS_TO_DXT), 16, 16);
+
+
 	root->AddChild(wallRoot);
 	camera->SetPosition(Vector3(0, 0, 100));
 
-	if (!cubeMap) {
-		return;
-	}
+
 	wallShader = new Shader(SHADERDIR"basicVertex.glsl", SHADERDIR"TexturedFragment.glsl");
 	if (!wallShader->LinkProgram()) {
 		return;
@@ -86,6 +94,8 @@ SceneB::SceneB(Window & parent) : OGLRenderer(parent)
 	wall->SetTexture(SOIL_load_OGL_texture(TEXTUREDIR"mossyBrick.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
 	wall->SetBumpMap(SOIL_load_OGL_texture(TEXTUREDIR"mossyBrickBump.jpg", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS));
 	SetTextureRepeating(wall->GetTexture(), true);
+	hellData->AddAnim(MESHDIR"walk7.md5anim");
+	hellNode->PlayAnim(MESHDIR"walk7.md5anim");
 
 	for (int i = 0; i < 11; ++i) {
 		SceneNode * s = new SceneNode();
@@ -99,28 +109,24 @@ SceneB::SceneB(Window & parent) : OGLRenderer(parent)
 
 	}
 
-	hellData = new MD5FileData(MESHDIR"hellknight.md5mesh");
-	hellNode = new MD5Node(*hellData);
-	hellData->AddAnim(MESHDIR"idle2.md5anim");
-	hellNode->PlayAnim(MESHDIR"idle2.md5anim");
-
+	
 	hellNode->SetColour(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
-	hellNode->SetTransform(Matrix4::Translation(Vector3(0.0f, -250.0f, 0.0f)));
 	hellNode->SetModelScale(Vector3(2.0f, 2.0f, 2.0f));
 	hellNode->SetBoundingRadius(5000.0f);
+	hellNode->SetTransform(Matrix4::Translation(Vector3(0.0f, -250.0f, -1000.0f)));
 	hellNode->SetOverrideShader(hellKnightShader);
 	root->AddChild(hellNode);
-
-	lights = new Light[lightNum];
+	
+	SceneNode * columnNode = new SceneNode();
+	columnNode->SetColour(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+	columnNode->SetModelScale(Vector3(100.0f, 100.0f, 100.0f));
+	columnNode->SetBoundingRadius(5000.0f);
+	columnNode->SetMesh(column);
+	columnNode->SetOverrideShader(wallShader);
+	wallRoot->AddChild(columnNode);
+	
 	lights[0] = Light(Vector3(0, 0.0f, 0.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f), 50000.0f);
 	lights[1] = Light(Vector3(0, 0.0f, -1000.0f), Vector4(1.0f, 1.0f, 1.0f, 1.0f), 50000.0f);
-
-	torch1Particles = new ParticleEmitter();
-
-	column = OBJMesh(MESHDIR"Column.obj");
-
-
-	basicFont = new Font(SOIL_load_OGL_texture(TEXTUREDIR"tahoma.tga", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_COMPRESS_TO_DXT), 16, 16);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1);
 
@@ -140,6 +146,7 @@ void SceneB::destroy()
 
 	delete hellData;
 	delete hellNode;
+	delete column;
 
 	delete lights;
 	delete camera;
@@ -158,7 +165,8 @@ void SceneB::UpdateScene(float msec)
 	camera->UpdateCamera(msec);
 	viewMatrix = camera->BuildViewMatrix();
 
-	frameFrustrum.FromMatrix(projMatrix * viewMatrix);
+	frameFrustrum.FromMatrix(projMatrix * viewMatrix);
+
 	torch1Particles->Update(msec);
 	hellNode->Update(msec);
 	root->Update(msec);
@@ -187,14 +195,19 @@ void SceneB::BuildNodeLists(SceneNode * from) {
 		BuildNodeLists((*i));
 
 	}
-}void SceneB::SortNodeLists() {
+
+}
+
+void SceneB::SortNodeLists() {
 	std::sort(transparentNodeList.begin(),
 		transparentNodeList.end(),
 		SceneNode::CompareByCameraDistance);
 	std::sort(nodeList.begin(),
 		nodeList.end(),
 		SceneNode::CompareByCameraDistance);
-}
+
+}
+
 void SceneB::ClearNodeLists() {
 	transparentNodeList.clear();
 	nodeList.clear();
@@ -253,8 +266,7 @@ void SceneB::RenderScene()
 
 	DrawObjects();
 
-	//GenerateScenery();
-	GenerateHellKnight();
+	UpdateHellKnight();
 	GenerateParticles();
 	GenerateText();
 
@@ -324,25 +336,6 @@ void SceneB::DrawObjects()
 	glUseProgram(0);
 }
 
-void SceneB::GenerateScenery()
-{
-	modelMatrix.ToIdentity();
-
-	SetCurrentShader(wallShader);
-
-	modelMatrix =//hallway left
-		Matrix4::Translation(Vector3(0.0f, 0.0f, 0.0f))*
-		Matrix4::Scale(Vector3(1000.0f, 1000.0f, 1000.0f));
-	UpdateShaderMatrices();
-
-	//pillar.Draw();
-
-	column.Draw();
-	//torch.Draw();
-
-	modelMatrix.ToIdentity();
-	glUseProgram(0);
-}
 
 void SceneB::GenerateParticles() {
 
@@ -371,14 +364,33 @@ void SceneB::GenerateParticles() {
 	glUseProgram(0);
 }
 
-void SceneB::GenerateHellKnight()
+void SceneB::UpdateHellKnight()
 {
 
-	SetCurrentShader(hellKnightShader);
+	SetCurrentShader(lightShader);
+	
+	//if (hellKnightPos > -500.0f) {
+	//	hellKnightPos -= 5.0f;
+	//	hellKnightDirection = true;
+	//}
+	//else if (hellKnightPos < -2000.0f) {
+	//	hellKnightPos += 5.0f;
+	//	hellKnightDirection = false;
+	//}
+	//else {
+	//	if (hellKnightDirection == true) {
+	//		hellKnightPos -= 5.0f;
+	//	}
+	//	else {
+	//		hellKnightPos += 5.0f;
+	//	}
+	//}
+
+	//hellNode->SetTransform(Matrix4::Translation(Vector3(0.0f, 0.0f, hellKnightPos)));
 
 	UpdateShaderMatrices();
 
-	hellNode->Draw(*this);
+	//hellNode->Draw(*this);
 
 	glUseProgram(0);
 
